@@ -30,4 +30,4 @@ the non-empty snippets into `AGENTS.md`, and report what it did.
 | memory | Memory and context contract | runtime |
 | observability | Trace events contract + schema | runtime |
 | guardrails | Agent tool policy, Rule of Two, budgets, human approval, decision records | runtime |
-| evals | Case schema, rubrics | none |
+| evals | Case, suite, result and error schemas; graders; aggregation; runner rules | runtime |

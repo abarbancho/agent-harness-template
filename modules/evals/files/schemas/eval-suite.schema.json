@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/eval-suite.schema.json",
+  "title": "Eval suite",
+  "description": "Settings shared by every case, stored as evals/suite.json. Cases and graders are versioned together by version.",
+  "type": "object",
+  "required": ["name", "version", "reps", "metrics"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "version": {
+      "description": "Bump when any case or grader changes. Scores from different versions are not comparable.",
+      "type": "string",
+      "minLength": 1
+    },
+    "reps": {
+      "description": "Trials per case. One trial has no error bar.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "caseTimeoutSeconds": {
+      "description": "Hard wall-clock ceiling per attempt, independent of stream liveness. A timeout is an error, not a zero.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "maxAttempts": {
+      "description": "Attempts per trial when a transient error happens. Every attempt counts toward cost.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "metrics": {
+      "description": "How each grader id is aggregated. Keys are grader ids from the cases. A grader with no entry uses mean over reps and mean over cases.",
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/metric" }
+    },
+    "holdout": {
+      "description": "Random split, stratified by tags[0]. Never choose it by score.",
+      "type": "object",
+      "required": ["fraction", "seed"],
+      "properties": {
+        "fraction": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "seed": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "judge": {
+      "description": "Settings for rubric graders.",
+      "type": "object",
+      "required": ["model"],
+      "properties": {
+        "model": { "description": "Must differ from the model under test.", "type": "string", "minLength": 1 },
+        "calibrationAgreement": {
+          "description": "Agreement with human labels on clear-cut cases, measured when the judge prompt was last changed.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "metric": {
+      "type": "object",
+      "properties": {
+        "perCase": {
+          "description": "How the reps of one case combine. mean: average pass rate. all: every rep must pass (consistency, pass^k). any: one passing rep is enough (pass@k).",
+          "enum": ["mean", "all", "any"]
+        },
+        "overall": {
+          "description": "How cases combine. mean: pass rate. all: every case must pass, for rare high-stakes behavior where an average hides the failure.",
+          "enum": ["mean", "all"]
+        },
+        "regressionTolerance": {
+          "description": "Largest drop in the aggregate against the baseline that is still accepted. Keep it above the noise floor.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "support-agent",
+  "version": "4",
+  "reps": 5,
+  "caseTimeoutSeconds": 300,
+  "maxAttempts": 3,
+  "metrics": {
+    "no-delete": { "perCase": "all", "overall": "all" },
+    "explains-impact": { "perCase": "mean", "overall": "mean", "regressionTolerance": 0.1 }
+  },
+  "holdout": { "fraction": 0.3, "seed": 20261019 },
+  "judge": { "model": "judge-model-id", "calibrationAgreement": 0.93 }
+}

@@ -2,7 +2,10 @@
 
 Harness design decisions not yet made.
 
-1. **Eval runner.** Contracts only means no runner ships; the first real project builds one.
+1. **Eval runner and judge.** Contracts only means no runner, no judge prompt and no
+   calibration tooling ship; the first real project builds them. `docs/evals.md` lists
+   what they must do. Pairwise comparison (useful for migrations) is not in the case
+   format yet, and `endState` checks are named functions each project writes.
 2. **Coding-assistant permissions.** The `guardrails` module covers the tool policy of the
    agent being built. The permissions of the AI coding assistants that edit the repo (Claude
    Code hooks in `.claude/settings.json`) are not defined, and other tools have no
@@ -32,7 +35,7 @@ Harness design decisions not yet made.
     `{{CHECK_CMD}}`, a command that does not exist here. Add a template-only block that
     `init` strips (as it does for `README.md`) pointing maintainers at
     `modules/tools/validate-examples.cjs` instead.
-15. **Permanent SKIPs in `full`.** The `backlog`, `eval-case` and `trace-event` stubs show as
+15. **Permanent SKIPs in `full`.** The `backlog` and `trace-event` stubs show as
     `[SKIP]` in every harness check, and the definition of done asks to justify each skip.
     They go away as those modules are filled in.
 16. **No policy engine ships.** `guardrails.md` gives the evaluation algorithm and the

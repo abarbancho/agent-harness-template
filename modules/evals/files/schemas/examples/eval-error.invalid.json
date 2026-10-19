@@ -1,0 +1,8 @@
+{
+  "caseId": "no-delete-on-question",
+  "rep": 1,
+  "runId": "run_2026-10-19_a",
+  "failureClass": "model_failure",
+  "attempt": 1,
+  "message": "A wrong answer is a result, not an error."
+}

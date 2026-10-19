@@ -1,6 +1,127 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/eval-case.schema.json",
   "title": "Eval case",
-  "description": "TODO: define. Each schema ships with a valid example instance.",
-  "type": "object"
+  "description": "One test of the agent behavior, stored as evals/cases/<id>.json. One capability per case.",
+  "type": "object",
+  "required": ["id", "description", "tags", "input", "origin", "graders"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$" },
+    "description": {
+      "description": "What behavior this case checks and why it matters.",
+      "type": "string",
+      "minLength": 1
+    },
+    "tags": {
+      "description": "tags[0] is the primary group: results are grouped by it and the held-out split is stratified by it. Tag cases where the agent must NOT act with the tag negative.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "input": {
+      "description": "Everything one run needs besides the agent configuration, which always comes from the real entry point.",
+      "type": "object",
+      "required": ["messages"],
+      "properties": {
+        "messages": {
+          "description": "Conversation so far. Give the symptom a user would report, not the investigation.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "https://harness.example/schemas/message.schema.json" }
+        },
+        "fixtures": {
+          "description": "Paths under evals/fixtures/ that seed the fresh environment of each run.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "origin": { "$ref": "#/$defs/origin" },
+    "graders": {
+      "description": "Independent checks. Each one produces its own metric, named by its id. Ids are unique within the case.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/grader" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$" },
+    "origin": {
+      "description": "Where the case and its ground truth came from. Gold taken from a model rewards imitating that model, so say which one.",
+      "type": "object",
+      "required": ["source", "groundTruth"],
+      "properties": {
+        "source": { "enum": ["production", "ticket", "handwritten", "synthesized"] },
+        "groundTruth": { "enum": ["human_written", "human_verified", "model_output", "none"] },
+        "model": { "description": "Which model produced the ground truth.", "type": "string", "minLength": 1 },
+        "verifiedOn": {
+          "description": "Date the expected answers were last checked, for cases that depend on live facts.",
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      },
+      "additionalProperties": false,
+      "if": { "type": "object", "properties": { "groundTruth": { "const": "model_output" } }, "required": ["groundTruth"] },
+      "then": { "type": "object", "required": ["model"] }
+    },
+    "grader": {
+      "oneOf": [
+        { "$ref": "#/$defs/checkGrader" },
+        { "$ref": "#/$defs/rubricGrader" },
+        { "$ref": "#/$defs/humanGrader" }
+      ]
+    },
+    "checkGrader": {
+      "description": "Programmatic check. Deterministic and free. See docs/evals.md for what each check reads.",
+      "type": "object",
+      "required": ["id", "kind", "check", "params"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "kind": { "const": "check" },
+        "check": {
+          "enum": ["equals", "contains", "notContains", "matches", "jsonSchema", "endState", "toolCalled", "toolNotCalled", "maxToolCalls", "maxSteps"]
+        },
+        "params": { "type": "object" }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        { "if": { "type": "object", "properties": { "check": { "const": "equals" } }, "required": ["check"] }, "then": { "type": "object", "properties": { "params": { "type": "object", "required": ["value"] } } } },
+        { "if": { "type": "object", "properties": { "check": { "enum": ["contains", "notContains"] } }, "required": ["check"] }, "then": { "type": "object", "properties": { "params": { "type": "object", "required": ["value"], "properties": { "value": { "type": "string" } } } } } },
+        { "if": { "type": "object", "properties": { "check": { "const": "matches" } }, "required": ["check"] }, "then": { "type": "object", "properties": { "params": { "type": "object", "required": ["pattern"], "properties": { "pattern": { "type": "string" } } } } } },
+        { "if": { "type": "object", "properties": { "check": { "const": "jsonSchema" } }, "required": ["check"] }, "then": { "type": "object", "properties": { "params": { "type": "object", "required": ["schema"], "properties": { "schema": { "type": "object" } } } } } },
+        { "if": { "type": "object", "properties": { "check": { "const": "endState" } }, "required": ["check"] }, "then": { "type": "object", "properties": { "params": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string", "minLength": 1 } } } } } },
+        { "if": { "type": "object", "properties": { "check": { "enum": ["toolCalled", "toolNotCalled"] } }, "required": ["check"] }, "then": { "type": "object", "properties": { "params": { "type": "object", "required": ["tool"], "properties": { "tool": { "type": "string", "minLength": 1 } } } } } },
+        { "if": { "type": "object", "properties": { "check": { "enum": ["maxToolCalls", "maxSteps"] } }, "required": ["check"] }, "then": { "type": "object", "properties": { "params": { "type": "object", "required": ["max"], "properties": { "max": { "type": "integer", "minimum": 0 } } } } } }
+      ]
+    },
+    "rubricGrader": {
+      "description": "Model judge with concrete, checkable criteria. The judge must not be the model under test, and treats the candidate text as data, not instructions.",
+      "type": "object",
+      "required": ["id", "kind", "criteria"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "kind": { "const": "rubric" },
+        "criteria": {
+          "description": "Each criterion is one checkable claim, for example: the answer cites at least one source from the context.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "humanGrader": {
+      "description": "A person grades. Use for a small curated subset and to calibrate model judges.",
+      "type": "object",
+      "required": ["id", "kind", "instructions"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "kind": { "const": "human" },
+        "instructions": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  }
 }

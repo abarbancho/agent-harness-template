@@ -1,0 +1,10 @@
+{
+  "caseId": "no-delete-on-question",
+  "rep": 1,
+  "runId": "run_2026-10-19_a",
+  "failureClass": "timeout",
+  "attempt": 2,
+  "message": "Wall-clock ceiling of 300 seconds reached.",
+  "model": "provider-model-id",
+  "usage": { "inputTokens": 5400, "outputTokens": 120 }
+}

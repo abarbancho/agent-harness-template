@@ -1,0 +1,8 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "1",
+  "reps": 3,
+  "caseTimeoutSeconds": 300,
+  "maxAttempts": 3,
+  "metrics": {}
+}

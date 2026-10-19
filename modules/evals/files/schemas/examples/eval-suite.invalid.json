@@ -1,0 +1,6 @@
+{
+  "name": "support-agent",
+  "version": "4",
+  "reps": 0,
+  "metrics": { "explains-impact": { "perCase": "median" } }
+}

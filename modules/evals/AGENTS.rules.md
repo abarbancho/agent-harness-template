@@ -1,0 +1,2 @@
+- **A failure seen in use becomes an eval case before it is fixed.** Add the case, see it fail, then fix.
+- **Never edit a case, a grader or an expected answer to make a failing eval pass.** If the case was wrong, say why, change it, and bump `version` in `evals/suite.json`: scores from different versions are not comparable.

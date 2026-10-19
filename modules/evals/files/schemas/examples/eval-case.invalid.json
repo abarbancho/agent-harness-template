@@ -1,0 +1,8 @@
+{
+  "id": "gold-from-a-model",
+  "description": "Ground truth came from a model but no model is named.",
+  "tags": ["quality"],
+  "input": { "messages": [ { "role": "user", "content": [ { "type": "text", "text": "Summarize the ticket." } ] } ] },
+  "origin": { "source": "production", "groundTruth": "model_output" },
+  "graders": [ { "id": "same-as-gold", "kind": "check", "check": "equals", "params": { "value": "A summary." } } ]
+}

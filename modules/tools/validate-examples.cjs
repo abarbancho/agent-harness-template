@@ -60,7 +60,10 @@ for (const s of schemas) {
 
 // Files that modules ship as ready-to-use instances of a schema. They must validate.
 // To ship another instance, add a line here.
-const INSTANCES = [{ file: 'config/guardrails.policy.json', schema: 'policy' }];
+const INSTANCES = [
+  { file: 'config/guardrails.policy.json', schema: 'policy' },
+  { file: 'evals/suite.json', schema: 'eval-suite' },
+];
 for (const inst of INSTANCES) {
   const candidates = [path.join(root, inst.file)];
   if (fs.existsSync(modulesDir)) {

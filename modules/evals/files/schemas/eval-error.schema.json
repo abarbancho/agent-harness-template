@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/eval-error.schema.json",
+  "title": "Eval error",
+  "description": "One line of errors.jsonl, appended per failed attempt: a trial that never produced a scorable output. Never scored as a model failure.",
+  "type": "object",
+  "required": ["caseId", "rep", "runId", "failureClass", "attempt", "message"],
+  "properties": {
+    "caseId": { "type": "string", "minLength": 1 },
+    "rep": { "type": "integer", "minimum": 0 },
+    "runId": { "type": "string", "minLength": 1 },
+    "failureClass": {
+      "description": "harness: the eval infrastructure failed. timeout: the wall-clock ceiling fired. rate_limited: still limited after retries. grader_error: the grader crashed. model_mismatch: the served model is not the requested one.",
+      "enum": ["harness", "timeout", "rate_limited", "grader_error", "model_mismatch"]
+    },
+    "attempt": { "description": "Which attempt of this trial failed, from 1.", "type": "integer", "minimum": 1 },
+    "message": { "type": "string", "minLength": 1 },
+    "model": { "description": "Model of the response, when the call completed.", "type": "string" },
+    "usage": {
+      "description": "Billed-but-failed spend still counts. Present when the call completed.",
+      "type": "object",
+      "required": ["inputTokens", "outputTokens"],
+      "properties": {
+        "inputTokens": { "type": "integer", "minimum": 0 },
+        "outputTokens": { "type": "integer", "minimum": 0 },
+        "cachedInputTokens": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

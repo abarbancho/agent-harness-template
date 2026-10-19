@@ -1,5 +1,5 @@
 {
   "name": "evals",
-  "description": "Eval-driven development: case schema, trajectory evals, judge rubrics.",
-  "requires": []
+  "description": "Eval-driven development: case, suite, result and error schemas, graders, aggregation, runner rules, reading results.",
+  "requires": ["runtime"]
 }

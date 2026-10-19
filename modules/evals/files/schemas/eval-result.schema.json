@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/eval-result.schema.json",
+  "title": "Eval result",
+  "description": "One line of results.jsonl: a trial that produced a scorable output. Trials that did not go to errors.jsonl, never here.",
+  "type": "object",
+  "required": ["caseId", "rep", "runId", "suiteVersion", "status", "model", "grades", "usage", "transcript"],
+  "properties": {
+    "caseId": { "type": "string", "minLength": 1 },
+    "rep": { "description": "Trial number, from 0. caseId and rep identify a row, and resume skips rows that exist.", "type": "integer", "minimum": 0 },
+    "runId": { "type": "string", "minLength": 1 },
+    "suiteVersion": { "type": "string", "minLength": 1 },
+    "status": {
+      "description": "ok: scored normally. truncated: hit the output limit, counted and shown but left out of the means. refused: the model declined, which is a result and its own metric.",
+      "enum": ["ok", "truncated", "refused"]
+    },
+    "stopReason": { "enum": ["end", "tool_calls", "length", "refusal", "paused", "other"] },
+    "model": {
+      "description": "Read from the response, not from configuration, and asserted equal to the requested model.",
+      "type": "string",
+      "minLength": 1
+    },
+    "grades": {
+      "description": "One entry per grader id.",
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/grade" }
+    },
+    "usage": { "$ref": "#/$defs/usage" },
+    "latencySeconds": {
+      "description": "Model time of the trial. Excludes retries, backoff and queueing.",
+      "type": "number",
+      "minimum": 0
+    },
+    "steps": { "description": "Model calls in the trial.", "type": "integer", "minimum": 1 },
+    "toolCalls": { "type": "integer", "minimum": 0 },
+    "attempts": { "description": "Attempts made, including retries.", "type": "integer", "minimum": 1 },
+    "transcript": {
+      "description": "Path of the saved full trajectory: every message, tool call, result and error.",
+      "type": "string",
+      "minLength": 1
+    },
+    "judge": {
+      "description": "Present when a rubric grader ran. Its cost is kept apart from the cost of the model under test.",
+      "type": "object",
+      "required": ["model", "usage"],
+      "properties": {
+        "model": { "type": "string", "minLength": 1 },
+        "usage": { "$ref": "#/$defs/usage" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "if": { "type": "object", "properties": { "status": { "const": "ok" } }, "required": ["status"] },
+  "then": { "type": "object", "properties": { "grades": { "type": "object", "minProperties": 1 } } },
+  "$defs": {
+    "grade": {
+      "type": "object",
+      "required": ["pass"],
+      "properties": {
+        "pass": { "type": "boolean" },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "explanation": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "usage": {
+      "type": "object",
+      "required": ["inputTokens", "outputTokens"],
+      "properties": {
+        "inputTokens": { "description": "All input tokens, cached ones included, summed over the trial.", "type": "integer", "minimum": 0 },
+        "outputTokens": { "type": "integer", "minimum": 0 },
+        "cachedInputTokens": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  }
+}
