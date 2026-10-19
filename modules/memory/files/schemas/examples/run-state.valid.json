@@ -4,11 +4,24 @@
   "step": 7,
   "messageCount": 14,
   "lastStopReason": "tool_calls",
-  "usage": { "inputTokens": 41230, "outputTokens": 2210, "cachedInputTokens": 30100 },
+  "usage": {
+    "inputTokens": 41230,
+    "outputTokens": 2210,
+    "cachedInputTokens": 30100
+  },
+  "lastUsage": {
+    "inputTokens": 6120,
+    "outputTokens": 310,
+    "cachedInputTokens": 5400
+  },
   "elapsedSeconds": 96.4,
-  "toolCallCounts": { "get_weather": 3, "memory_read": 1 },
+  "toolCallCounts": {
+    "get_weather": 3,
+    "memory_read": 1
+  },
   "consecutiveErrors": 0,
   "consecutivePauses": 0,
+  "sawUntrustedInput": false,
   "resumes": 1,
   "compactions": [
     {

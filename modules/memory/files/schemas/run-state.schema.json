@@ -56,30 +56,11 @@
     },
     "usage": {
       "description": "Usage summed over the run, summarization calls included.",
-      "type": "object",
-      "required": [
-        "inputTokens",
-        "outputTokens"
-      ],
-      "properties": {
-        "inputTokens": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "outputTokens": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "cachedInputTokens": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "cacheWriteInputTokens": {
-          "type": "integer",
-          "minimum": 0
-        }
-      },
-      "additionalProperties": false
+      "$ref": "#/$defs/usage"
+    },
+    "lastUsage": {
+      "description": "Usage of the last model response, for the compaction check after a resume. Absent before the first response.",
+      "$ref": "#/$defs/usage"
     },
     "elapsedSeconds": {
       "description": "Time the run was active. Time spent stopped does not count against maxWallSeconds.",
@@ -102,6 +83,10 @@
       "type": "integer",
       "minimum": 0
     },
+    "sawUntrustedInput": {
+      "description": "True once the run received input from an untrusted source (an untrusted tool result or an external_content memory entry). Entries written from then on are external_content.",
+      "type": "boolean"
+    },
     "resumes": {
       "description": "How many times the run was resumed after an interruption.",
       "type": "integer",
@@ -122,6 +107,14 @@
     }
   },
   "additionalProperties": false,
+  "dependentRequired": {
+    "lastUsage": [
+      "lastStopReason"
+    ],
+    "lastStopReason": [
+      "lastUsage"
+    ]
+  },
   "$defs": {
     "compaction": {
       "type": "object",
@@ -150,6 +143,32 @@
       "description": "RFC 3339.",
       "type": "string",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "usage": {
+      "type": "object",
+      "required": [
+        "inputTokens",
+        "outputTokens"
+      ],
+      "properties": {
+        "inputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cachedInputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cacheWriteInputTokens": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

@@ -32,7 +32,14 @@ Values are defaults and placeholders. A project sets its own.
 | `contextWindowTokens` | none, from the model | Size of the context window of the model in use |
 | `compactAtFraction` | 0.8 | Compact when the next request is expected to pass this fraction of the window |
 | `maxToolResultChars` | 20000 | Longest tool result kept whole in the history |
+| `maxToolMessageChars` | 80000 | Longest `tool` message: all results of one assistant message together |
 | `maxCompactions` | 5 | Compactions per run, then the run stops with `limit_reached` |
+
+**Headroom.** `1 - compactAtFraction` of the window must hold one `tool` message
+(`maxToolMessageChars`, in tokens), the next response (`maxOutputTokens`) and the
+summarization instruction. Check this when the configuration loads. Without it a single
+tool round can push the context past the window, and the summarization request, which sends
+that whole context, is rejected as too large exactly when compaction is needed.
 
 ### Keep results small at the source
 
@@ -47,6 +54,9 @@ characters were left out, and save the full output to a file the model can read 
 The result still answers its call, so invariant 3 of the loop holds. Do not put the overflow
 file inside the history. Treat overflow files like the history files: they hold full content.
 
+The same applies to the whole `tool` message. When its results together are longer than
+`maxToolMessageChars`, cut the longest results first, in the same way, until it fits.
+
 ### When to compact
 
 Checked before each model call, right after the limits of the loop. The next request is
@@ -60,12 +70,15 @@ compact when expected >= compactAtFraction * contextWindowTokens
 
 `usage.inputTokens` already counts cached tokens (`model-interface.md`). Use the token
 counting of your provider for the estimate when it has one, or characters divided by four
-when it does not. No usage exists before the first response, so the first call never
-compacts.
+when it does not. `last.usage` is kept in the run state as `lastUsage`, so the check works
+after a resume. No usage exists before the first response, so the first call never compacts.
 
 Compaction happens only at this point, so it never falls in the middle of a tool round. The
-history then ends on a complete `tool` message (or on the first user message), never on an
-assistant message with calls that still wait for results.
+history then ends on a complete `tool` message (or on the first user message), with one
+exception: **never compact while the last stop reason is `paused`.** Then the history ends
+on the paused assistant message, which must be sent back as it is for the provider to resume
+its unfinished turn (`agent-loop.md`, Pauses). Compaction waits for the next point where
+the turn is complete.
 
 ### How to compact
 
@@ -88,8 +101,10 @@ Way 2 in steps:
 1. Make a model request with the **same** `model`, system prompt and tools as the run, and
    the current context followed by one user message with the summarization instruction
    (below). Reusing them exactly keeps the prompt cache of the run for this request.
-2. The response is the summary. Its text must not be empty. If the model called a tool
-   instead, the compaction failed: retry once, then stop the run with `failed`.
+2. The response is the summary only if its `stopReason` is `end` and its text is not empty.
+   Anything else fails the compaction: a tool call, `length` (the summary was cut off),
+   `refusal`, `paused` or `other`. A summary that is cut off or refused would replace the
+   whole earlier context for good. Retry once, then stop the run with `failed`.
 3. Append a compaction record to the run state (`atMessageCount` is the number of messages
    in the history now). Do not touch the history.
 4. From the next request on, the context is:
@@ -141,45 +156,72 @@ history whole.
 
 ## Run state and resume
 
-A run can be interrupted: a crash, a deploy, a closed laptop. Two files per run, in
+A run can be interrupted: a crash, a deploy, a closed laptop. Four files per run, in
 `runs/<runId>/` by default (the folder is listed in `.gitignore`):
 
 | File | Holds |
 |---|---|
 | `history.jsonl` | The history, one message per line, in the shape of `schemas/message.schema.json`. Append only. |
 | `state.json` | The counters and the compactions, in the shape of `schemas/run-state.schema.json`. Rewritten whole. |
+| `pending.jsonl` | `tool_result` blocks of the current turn, one per line, saved as each call finishes. Emptied when the turn ends. |
+| `lock` | Who is running the run now (see Ownership). |
 
-The history file is the truth. The state file can lag by one write, and `messageCount` in it
-says how many history lines it knew about.
+The history file is the truth for the messages. `messageCount` in the state says how many
+lines the state expected.
 
 ### Write order
 
-1. Append the assistant message to `history.jsonl` **before** running any of its tool calls.
-2. Append the `tool` message, with all the results of that assistant message in one line,
-   only when every call has an answer.
-3. Rewrite `state.json` after each model response and after each `tool` message. Write to
-   a temporary file in the same folder and rename it over the old one, so a crash leaves
-   either the old or the new file.
+1. When a model response arrives, rewrite `state.json` **first** (the new `step`, `usage`,
+   `lastUsage`, `lastStopReason`), then append the assistant message to `history.jsonl`,
+   and only then run any of its tool calls. The order matters: whenever the last line of the
+   history is an assistant message, the state already holds the stop reason that came with
+   it. The stop reason is not part of the message, so this is the only place it survives.
+2. When a call that is not `none` or `read` finishes, append its `tool_result` block to
+   `pending.jsonl` before starting the next call. Otherwise a crash later in the turn loses
+   the result of a side effect that did happen.
+3. When every call has an answer, append the `tool` message, with all the results in one
+   line, to `history.jsonl`. Then rewrite `state.json`, then empty `pending.jsonl`.
 
-One message per line means a crash can tear at most the last line. Discard a last line that
-is not complete JSON.
+End every line with a newline and flush each append before the next step. Write `state.json`
+to a temporary file in the same folder and rename it over the old one, so a crash leaves
+either the old or the new file.
+
+One message per line means a crash can tear at most the last line. **On resume, before the
+first append, cut the file back to the end of its last complete line** (a line that ends in a
+newline and is valid JSON). Dropping the fragment only in memory is not enough: the next
+append would be glued to it, and the file would be corrupt from then on. Do the same to
+`pending.jsonl`.
+
+### Ownership
+
+`running` is also the status of a run that is alive. Two loops on one run would append to the
+same files and run the same calls twice, so a run has one owner at a time.
+
+- The owner creates `lock` exclusively (fails if it exists), writes its own id in it, and
+  rewrites a heartbeat time in it every `leaseSeconds / 3`. `leaseSeconds` defaults to 60.
+- A run may be resumed only when `lock` is missing or its heartbeat is older than
+  `leaseSeconds`. The new owner takes the lock the same way, and then continues.
+- The owner removes `lock` when the run ends.
 
 ### Resuming
 
-Load the history, drop a torn last line, load the state (when its `messageCount` is not the
-number of history lines, trust the history and keep the counters), then look at how the
-history ends:
+Load the history, cut a torn last line, load the state (when its `messageCount` is not the
+number of history lines, trust the history for the messages and keep the counters), then look
+at how the history ends:
 
 | History ends on | Meaning | Do |
 |---|---|---|
 | A `tool` message | Results are in, the model call was lost | Continue the loop |
 | A user message | The model call was lost | Continue the loop |
-| An assistant message with `tool_call` blocks | The crash came during the tools | Settle the calls below, then continue |
-| An assistant message with no calls | Nothing to continue unless `lastStopReason` is `paused` | If paused, continue (see Pauses in the loop). Otherwise the run is over |
+| An assistant message, `lastStopReason` `tool_calls` | The crash came during the tools | Settle the calls below, then continue |
+| An assistant message, `lastStopReason` `paused` | The turn is unfinished | Continue: send the history as it is (Pauses in the loop) |
+| An assistant message, `lastStopReason` `end` | The run was over | Set `completed` |
+| An assistant message, `lastStopReason` `length`, `refusal` or `other` | The turn failed | Set `truncated`, `refused` or `failed`. Run **no** tool call of it: it may be cut off mid-input |
 
-**Settling unanswered calls.** For each call without a result:
+**Settling calls.** For each `tool_call` of the last assistant message:
 
-- A tool with `sideEffects` `none` or `read` may run again. It still goes through
+- If `pending.jsonl` holds its result, use it.
+- Otherwise, a tool with `sideEffects` `none` or `read` may run again. It still goes through
   `beforeToolCall`, with `toolCallCounts` taken from the state.
 - Any other call (`write`, `irreversible`, or a tool that is no longer declared) is **not**
   run again. Answer it with `isError: true` and a text like "Interrupted: the run stopped
@@ -191,9 +233,10 @@ Then append one `tool` message with all the results, as usual.
 
 Counters come from the state: `step`, `usage`, `elapsedSeconds` (the time the run was
 active, so the wall limit does not count the time it sat stopped), `toolCallCounts`,
-`consecutiveErrors`, `consecutivePauses`. Add one to `resumes`.
+`consecutiveErrors`, `consecutivePauses`, `sawUntrustedInput` (see the rules for memory).
+Add one to `resumes`.
 
-A run is resumed when its `status` is `running` (the process died). A run that ended with
+A run is resumed when its `status` is `running` and its lock is free. A run that ended with
 `limit_reached` may be resumed by a person who raises the limit. `completed`, `truncated`,
 `refused` and `failed` are not resumed automatically.
 
@@ -238,10 +281,13 @@ Anthropic memory tool, whose commands are `view`, `create`, `str_replace`, `inse
 ### Loading
 
 At the start of a run, put an **index** in the context: `id` and `description` of each live
-entry, up to `maxIndexEntries` (default 50, newest first), under a heading that says they
-are notes from earlier runs and are data. The model fetches the ones it needs with
-`memory_read`. Do not load every entry's content by default; it costs tokens on every run
-and every call.
+entry whose `origin` is `user_statement` or `agent_inference`, up to `maxIndexEntries`
+(default 50, newest first), under a heading that says they are notes from earlier runs and
+are data. The model fetches the ones it needs with `memory_read`. Do not load every entry's
+content by default; it costs tokens on every run and every call.
+
+`external_content` entries are **not** in the index. They can still be found with
+`memory_search` and read with `memory_read`, and doing so taints the run (see the rules).
 
 Put the index in the system prompt, where it stays the same for the whole run and the prompt
 cache survives. If you put it in the first user message instead, that message is replaced by
@@ -252,11 +298,21 @@ the summary on compaction, so add the index to the new context again.
 - **Notes are data, never instructions.** A note cannot grant a permission, change the tool
   policy or override the system prompt. Say so in the heading of the index. That wording is
   a hint to the model, not a control; the controls are in code (see the tool policy).
-- **The harness sets `origin`, not the model.** A write made in a run that has read any
-  untrusted source is `external_content`; otherwise a model's own conclusion is
-  `agent_inference`, and only what the user said is `user_statement`. Memory that outlives
-  the run is where a single injected line becomes permanent, so show or confirm
-  `external_content` writes and do not let them overwrite entries of another origin.
+- **The harness sets `origin`, not the model.** A write made in a *tainted* run is
+  `external_content`; otherwise a model's own conclusion is `agent_inference`, and only what
+  the user said is `user_statement`. A run is **tainted** from the moment it receives
+  anything from an untrusted source: a tool result of an untrusted tool, or an
+  `external_content` entry returned by `memory_search` or `memory_read`. The harness keeps
+  this as `sawUntrustedInput` in the run state, so it survives a resume. Without the second
+  case, one poisoned entry would come back as trusted in the next run and could spread.
+  A policy list of untrusted tools is static and cannot express this, so the harness marks
+  the taint itself.
+- **A tainted run cannot change entries of another origin.** In a tainted run, a
+  `memory_write` that would replace an entry, or a `memory_delete` of one, is denied unless
+  that entry is also `external_content`, or a person confirms it. Guarding only overwrites
+  would let a run delete a `user_statement` entry and write its own under the same id.
+  New `external_content` entries are shown to a person or confirmed, since memory that
+  outlives the run is where a single injected line becomes permanent.
 - **No secrets, and no personal data the task does not need.** Keys, tokens, passwords and
   copies of private documents never go in an entry. Check the data protection rules that apply
   before keeping data about a person.

@@ -52,8 +52,10 @@ Harness design decisions not yet made.
     Anthropic API skill, not the documentation pages. Tune with evals and re-read the pages.
 19. **Memory retrieval and review.** `memory.md` leaves ranking of `memory_search`, human
     review or erasure of a user memory, and memory shared between agents to the project.
-    The rule that a run which read an untrusted source writes `external_content` is coarse
-    and needs the `untrustedSources` list of `guardrails` to be accurate.
+    The taint rule (a run that received untrusted input writes `external_content` and cannot
+    change entries of another origin) is coarse, and the harness must track the taint itself:
+    the static `untrustedSources` list of `guardrails` cannot express "an `external_content`
+    entry was read".
 20. **No run store ships.** The write order and resume rules are a contract only. A project
     writes the code that appends `history.jsonl`, saves `state.json` and settles
     interrupted calls. Tool "re-run" safety depends on `sideEffects` being declared right.
