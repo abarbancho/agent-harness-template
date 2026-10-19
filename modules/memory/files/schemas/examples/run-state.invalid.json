@@ -1,0 +1,13 @@
+{
+  "runId": "run-0042",
+  "status": "paused",
+  "step": 7,
+  "messageCount": 14,
+  "usage": { "inputTokens": 41230, "outputTokens": 2210 },
+  "elapsedSeconds": 96.4,
+  "toolCallCounts": {},
+  "consecutiveErrors": 0,
+  "consecutivePauses": 0,
+  "startedAt": "2026-10-19T09:30:00Z",
+  "updatedAt": "2026-10-19T09:32:10Z"
+}

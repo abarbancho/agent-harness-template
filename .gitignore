@@ -6,3 +6,4 @@ CLAUDE.local.md
 .vscode/
 .idea/
 evals/results/
+runs/

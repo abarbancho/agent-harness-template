@@ -27,7 +27,7 @@ the non-empty snippets into `AGENTS.md`, and report what it did.
 | roles | planner, spec-author, implementer, reviewer | specs |
 | backlog | `backlog.json`, session lifecycle, history | none |
 | runtime | Agent loop, tool and model-interface contracts + schemas | none |
-| memory | Memory and context contract | runtime |
+| memory | Context, compaction, run resume and memory contract + schemas | runtime |
 | observability | Trace events contract + schema | runtime |
 | guardrails | Agent tool policy, Rule of Two, budgets, human approval, decision records | runtime |
 | evals | Case, suite, result and error schemas; graders; aggregation; runner rules | runtime |

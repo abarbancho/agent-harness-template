@@ -1,0 +1,22 @@
+{
+  "runId": "run-0042",
+  "status": "running",
+  "step": 7,
+  "messageCount": 14,
+  "lastStopReason": "tool_calls",
+  "usage": { "inputTokens": 41230, "outputTokens": 2210, "cachedInputTokens": 30100 },
+  "elapsedSeconds": 96.4,
+  "toolCallCounts": { "get_weather": 3, "memory_read": 1 },
+  "consecutiveErrors": 0,
+  "consecutivePauses": 0,
+  "resumes": 1,
+  "compactions": [
+    {
+      "atMessageCount": 10,
+      "createdAt": "2026-10-19T09:31:12Z",
+      "summary": "Task: plan a trip to Madrid for two people, budget 800 EUR. Done: flights shortlisted (ids in notes.txt). Remaining: pick a hotel. Failed: the booking tool rejects dates before 2026-11-01."
+    }
+  ],
+  "startedAt": "2026-10-19T09:30:00Z",
+  "updatedAt": "2026-10-19T09:32:10Z"
+}

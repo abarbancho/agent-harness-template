@@ -46,3 +46,14 @@ Harness design decisions not yet made.
     are maintained by hand, so an unclassified tool silently weakens the Rule of Two check.
 17. **Meta Rule of Two source.** The original page returned 403; the wording comes from two
     articles that quote it. Re-read the original and adjust `guardrails.md` if it differs.
+18. **Memory contract is untested against a real provider.** The compaction flow, the
+    summarization instruction and the `compactAtFraction` default are drafts. Anthropic
+    compaction, context editing and the memory tool were read through the notes of the
+    Anthropic API skill, not the documentation pages. Tune with evals and re-read the pages.
+19. **Memory retrieval and review.** `memory.md` leaves ranking of `memory_search`, human
+    review or erasure of a user memory, and memory shared between agents to the project.
+    The rule that a run which read an untrusted source writes `external_content` is coarse
+    and needs the `untrustedSources` list of `guardrails` to be accurate.
+20. **No run store ships.** The write order and resume rules are a contract only. A project
+    writes the code that appends `history.jsonl`, saves `state.json` and settles
+    interrupted calls. Tool "re-run" safety depends on `sideEffects` being declared right.

@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/run-state.schema.json",
+  "title": "Run state",
+  "description": "The counters and compactions of one run, kept beside its history so the run can be resumed. The history file is the truth; this file can lag it by one write.",
+  "type": "object",
+  "required": [
+    "runId",
+    "status",
+    "step",
+    "messageCount",
+    "usage",
+    "elapsedSeconds",
+    "toolCallCounts",
+    "consecutiveErrors",
+    "consecutivePauses",
+    "startedAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "description": "running means the run has not ended; if the process died it is resumable.",
+      "enum": [
+        "running",
+        "completed",
+        "limit_reached",
+        "truncated",
+        "refused",
+        "failed"
+      ]
+    },
+    "step": {
+      "description": "Model calls so far, not counting summarization calls.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "messageCount": {
+      "description": "Number of lines of history.jsonl this file knew about when it was written.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "lastStopReason": {
+      "description": "Stop reason of the last model response. Absent before the first one.",
+      "enum": [
+        "end",
+        "tool_calls",
+        "length",
+        "refusal",
+        "paused",
+        "other"
+      ]
+    },
+    "usage": {
+      "description": "Usage summed over the run, summarization calls included.",
+      "type": "object",
+      "required": [
+        "inputTokens",
+        "outputTokens"
+      ],
+      "properties": {
+        "inputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cachedInputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cacheWriteInputTokens": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "elapsedSeconds": {
+      "description": "Time the run was active. Time spent stopped does not count against maxWallSeconds.",
+      "type": "number",
+      "minimum": 0
+    },
+    "toolCallCounts": {
+      "description": "Calls allowed to run so far, per tool name.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "consecutiveErrors": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "consecutivePauses": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "resumes": {
+      "description": "How many times the run was resumed after an interruption.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "compactions": {
+      "description": "Harness compactions, oldest first. The context is built from the last one. Provider-side compaction is not recorded.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/compaction"
+      }
+    },
+    "startedAt": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "updatedAt": {
+      "$ref": "#/$defs/timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "compaction": {
+      "type": "object",
+      "required": [
+        "atMessageCount",
+        "createdAt",
+        "summary"
+      ],
+      "properties": {
+        "atMessageCount": {
+          "description": "Messages in the history when it was made. The context after it is the summary plus history[atMessageCount:].",
+          "type": "integer",
+          "minimum": 1
+        },
+        "createdAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "timestamp": {
+      "description": "RFC 3339.",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    }
+  }
+}

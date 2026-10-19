@@ -1,0 +1,10 @@
+{
+  "id": "prefers-short-answers",
+  "kind": "preference",
+  "description": "The user wants answers of at most five lines unless they ask for detail",
+  "content": "Keep answers to five lines or fewer. Give detail only when asked. The user said this in the first session and repeated it later.",
+  "origin": "user_statement",
+  "createdAt": "2026-10-19T09:30:00Z",
+  "updatedAt": "2026-10-19T09:30:00Z",
+  "source": { "runId": "run-0042", "step": 3 }
+}
