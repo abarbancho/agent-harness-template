@@ -1,1 +1,3 @@
-- **Spec before code for medium and large tasks.** Classify with `docs/process/scaling.md`; stop at the human gates it defines.
+- **Classify every task, then spec it to its size.** Use `docs/process/scaling.md`, write the size and the deciding signal in `progress/current.md`, and when in doubt take the larger size.
+- **Spec before code for medium and large tasks.** A large spec needs a person's approval of requirements and design first. Never write `approved` yourself.
+- **The spec comes first when it is wrong.** If the work shows the spec is wrong, update it and say so before changing the code. Never weaken an acceptance criterion to make a task pass.
