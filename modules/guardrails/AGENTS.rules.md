@@ -1,1 +1,2 @@
-- **Respect guardrails.** No tool, permission or budget change without updating `docs/guardrails.md`. Stop at its approval points; never self-approve.
+- **A new tool is not usable until classified.** Declare its `sideEffects` and `external`, and list it in `sensitiveTools` or `untrustedSources` in `config/guardrails.policy.json` if it applies. Unclassified tools are denied.
+- **Never loosen the tool policy to make a run pass.** A change to `config/guardrails.policy.json` that allows more is made on its own, explained, and left for human review.

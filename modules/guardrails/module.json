@@ -1,5 +1,5 @@
 {
   "name": "guardrails",
-  "description": "Tool policy, budgets, human-in-the-loop points, prompt-injection defense.",
-  "requires": []
+  "description": "Tool policy for the agent being built: allow, confirm or deny per tool call, Rule of Two, budgets, human approval, decision records.",
+  "requires": ["runtime"]
 }

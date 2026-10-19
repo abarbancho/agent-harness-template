@@ -1,0 +1,18 @@
+{
+  "mode": "attended",
+  "default": "deny",
+  "rules": [
+    {
+      "sideEffects": ["none", "read"],
+      "external": false,
+      "decision": "allow",
+      "reason": "Changes nothing and stays inside the project environment"
+    }
+  ],
+  "sensitiveTools": [],
+  "untrustedSources": [],
+  "ruleOfTwo": "confirm",
+  "maxToolCalls": 100,
+  "confirmTimeoutSeconds": 300,
+  "limits": {}
+}

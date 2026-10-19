@@ -60,9 +60,25 @@ result, because invariant 3 requires an answer. Log them separately from tool fa
 **Concurrency.** Calls may run concurrently only if every one of them has `sideEffects` of
 `none` or `read`. Otherwise run them one at a time in call order.
 
-**Hook.** `beforeToolCall(call, tool) -> allow | deny(reason)` runs before every tool. It is
-the single place where a project plugs in approval, policy or auditing. The loop defines
-the hook point; the policy belongs to the project.
+**Hook.** `beforeToolCall(call, tool, run) -> allow | deny(reason)` runs before every tool.
+It is the single place where a project plugs in approval, policy or auditing. The loop
+defines the hook point; the policy belongs to the project.
+
+`run` is a read-only view of the run:
+
+| Field | Meaning |
+|---|---|
+| `runId` | Identifier of this run |
+| `step` | Number of model calls so far |
+| `history` | The messages so far, including the assistant message that holds this call |
+| `usage` | Summed usage so far |
+| `toolCallCounts` | Calls allowed to run so far, per tool name, including earlier calls of the same assistant message |
+| `tools` | Names of the tools available in this run |
+
+When one assistant message holds several calls, evaluate the hook for them one at a time in
+call order, **before any of them runs**. A hook may block while it waits for a human, and
+the counts then do not depend on timing. Then run the allowed calls as described under
+concurrency.
 
 ## Pauses
 

@@ -29,5 +29,5 @@ the non-empty snippets into `AGENTS.md`, and report what it did.
 | runtime | Agent loop, tool and model-interface contracts + schemas | none |
 | memory | Memory and context contract | runtime |
 | observability | Trace events contract + schema | runtime |
-| guardrails | Tool policy, budgets, human-in-the-loop | none |
+| guardrails | Agent tool policy, Rule of Two, budgets, human approval, decision records | runtime |
 | evals | Case schema, rubrics | none |

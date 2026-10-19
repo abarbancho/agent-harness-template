@@ -58,5 +58,23 @@ for (const s of schemas) {
   }
 }
 
+// Files that modules ship as ready-to-use instances of a schema. They must validate.
+// To ship another instance, add a line here.
+const INSTANCES = [{ file: 'config/guardrails.policy.json', schema: 'policy' }];
+for (const inst of INSTANCES) {
+  const candidates = [path.join(root, inst.file)];
+  if (fs.existsSync(modulesDir)) {
+    for (const m of fs.readdirSync(modulesDir)) candidates.push(path.join(modulesDir, m, 'files', inst.file));
+  }
+  for (const file of candidates.filter((c) => fs.existsSync(c))) {
+    console.log(`instance ${path.relative(root, file)} against ${inst.schema}`);
+    const target = schemas.find((s) => s.name === inst.schema && !s.stub);
+    if (!target) { fail(`schema ${inst.schema} not found or is a stub`); continue; }
+    const validate = ajv.getSchema(target.schema.$id);
+    if (validate(read(file))) console.log('  ok   shipped instance validates');
+    else fail('shipped instance rejected: ' + ajv.errorsText(validate.errors));
+  }
+}
+
 console.log(failures ? `\n${failures} failure(s)` : '\nall examples behave as expected');
 process.exit(failures ? 1 : 0);

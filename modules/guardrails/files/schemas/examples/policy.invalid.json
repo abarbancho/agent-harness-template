@@ -1,0 +1,5 @@
+{
+  "mode": "attended",
+  "default": "allow",
+  "rules": [ { "reason": "No tool, sideEffects or external, and no decision" } ]
+}

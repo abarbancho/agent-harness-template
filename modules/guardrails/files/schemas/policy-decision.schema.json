@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/policy-decision.schema.json",
+  "title": "Policy decision record",
+  "description": "Audit record written for every tool call the policy evaluated. Arguments are stored as a digest, never in clear.",
+  "type": "object",
+  "required": ["time", "runId", "step", "callId", "tool", "decision", "outcome", "argumentsDigest"],
+  "properties": {
+    "time": {
+      "description": "RFC 3339 timestamp.",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "runId": { "type": "string", "minLength": 1 },
+    "step": { "type": "integer", "minimum": 1 },
+    "callId": { "type": "string", "minLength": 1 },
+    "tool": { "type": "string", "minLength": 1 },
+    "sideEffects": { "enum": ["none", "read", "write", "irreversible"] },
+    "external": { "type": "boolean" },
+    "mode": { "enum": ["attended", "unattended"] },
+    "decision": {
+      "description": "What the policy decided before any human was asked.",
+      "enum": ["allow", "confirm", "deny"]
+    },
+    "outcome": {
+      "description": "What happened. allowed and denied need no human. approved, rejected and timed_out follow a confirm. denied also follows a confirm when the run is unattended.",
+      "enum": ["allowed", "denied", "approved", "rejected", "timed_out"]
+    },
+    "reasons": {
+      "description": "Why: the rules that matched, the escalation applied, the limit reached.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "approver": { "description": "Who answered a confirmation.", "type": "string", "minLength": 1 },
+    "argumentsDigest": {
+      "description": "SHA-256 of the canonical JSON of the call arguments, lowercase hex. An approval covers exactly these arguments.",
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "type": "object", "properties": { "decision": { "const": "allow" } }, "required": ["decision"] },
+      "then": { "type": "object", "properties": { "outcome": { "const": "allowed" } } }
+    },
+    {
+      "if": { "type": "object", "properties": { "decision": { "const": "deny" } }, "required": ["decision"] },
+      "then": { "type": "object", "properties": { "outcome": { "const": "denied" } } }
+    },
+    {
+      "if": { "type": "object", "properties": { "decision": { "const": "confirm" } }, "required": ["decision"] },
+      "then": { "type": "object", "properties": { "outcome": { "enum": ["approved", "rejected", "timed_out", "denied"] } } }
+    },
+    {
+      "if": { "type": "object", "properties": { "outcome": { "enum": ["approved", "rejected"] } }, "required": ["outcome"] },
+      "then": { "type": "object", "required": ["approver"] }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/policy.schema.json",
+  "title": "Tool policy",
+  "description": "Decides which tool calls of the agent being built are allowed, need a human, or are denied. Most restrictive matching decision wins.",
+  "type": "object",
+  "required": ["mode", "default", "rules"],
+  "properties": {
+    "mode": {
+      "description": "attended: a human can answer confirmations. unattended: nobody can answer, so every confirm becomes deny.",
+      "enum": ["attended", "unattended"]
+    },
+    "default": {
+      "description": "Decision when no rule matches. Never allow: a tool nobody classified must not run unchecked.",
+      "enum": ["deny", "confirm"]
+    },
+    "rules": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rule" }
+    },
+    "sensitiveTools": {
+      "description": "Patterns of tools that read private data or sensitive systems (property B of the Rule of Two).",
+      "type": "array",
+      "items": { "$ref": "#/$defs/toolPattern" }
+    },
+    "untrustedSources": {
+      "description": "Patterns of tools whose results contain content the project does not control, such as web pages or inbound email (property A of the Rule of Two).",
+      "type": "array",
+      "items": { "$ref": "#/$defs/toolPattern" }
+    },
+    "ruleOfTwo": {
+      "description": "Minimum decision for a call that changes state or reaches outside (property C), once untrusted content is in the run and a sensitive tool is available.",
+      "enum": ["confirm", "deny"]
+    },
+    "maxToolCalls": {
+      "description": "Maximum tool calls that may run in one run. Enforced by the policy, not by the loop.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "perToolMaxCalls": {
+      "description": "Maximum calls per tool name in one run.",
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 1 }
+    },
+    "confirmTimeoutSeconds": {
+      "description": "How long to wait for a human answer. On timeout the call is denied.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "limits": {
+      "description": "Overrides for the agent loop limits. An omitted value keeps the loop default.",
+      "type": "object",
+      "properties": {
+        "maxSteps": { "type": "integer", "minimum": 1 },
+        "maxWallSeconds": { "type": "integer", "minimum": 1 },
+        "maxTotalTokens": { "type": "integer", "minimum": 1 },
+        "maxConsecutiveErrors": { "type": "integer", "minimum": 1 },
+        "maxConsecutivePauses": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "toolPattern": {
+      "description": "A tool name, or a pattern where * matches any run of characters.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.*-]{1,128}$"
+    },
+    "rule": {
+      "description": "Matches a call when every field it has matches. A missing external means any value. A tool with no external field counts as false.",
+      "type": "object",
+      "required": ["decision"],
+      "anyOf": [
+        { "required": ["tool"] },
+        { "required": ["sideEffects"] },
+        { "required": ["external"] }
+      ],
+      "properties": {
+        "tool": { "$ref": "#/$defs/toolPattern" },
+        "sideEffects": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["none", "read", "write", "irreversible"] }
+        },
+        "external": { "type": "boolean" },
+        "decision": { "enum": ["allow", "confirm", "deny"] },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

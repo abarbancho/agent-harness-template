@@ -3,8 +3,10 @@
 Harness design decisions not yet made.
 
 1. **Eval runner.** Contracts only means no runner ships; the first real project builds one.
-2. **Hooks.** Claude Code hooks for hard guardrails (`.claude/settings.json`) are not
-   defined. Other tools have no equivalent; decide how guardrails are enforced there.
+2. **Coding-assistant permissions.** The `guardrails` module covers the tool policy of the
+   agent being built. The permissions of the AI coding assistants that edit the repo (Claude
+   Code hooks in `.claude/settings.json`) are not defined, and other tools have no
+   equivalent; decide how they are enforced.
 3. **Size thresholds** in `modules/specs/files/docs/process/scaling.md` are drafts.
 4. **Cursor/Copilot role adapters.** Roles have Claude Code subagent adapters only.
 5. **Role toggling** is covered by modules; confirm `roles` should stay out of `lite`.
@@ -33,3 +35,8 @@ Harness design decisions not yet made.
 15. **Permanent SKIPs in `full`.** The `backlog`, `eval-case` and `trace-event` stubs show as
     `[SKIP]` in every harness check, and the definition of done asks to justify each skip.
     They go away as those modules are filled in.
+16. **No policy engine ships.** `guardrails.md` gives the evaluation algorithm and the
+    schemas; a project writes the hook. The `sensitiveTools` and `untrustedSources` lists
+    are maintained by hand, so an unclassified tool silently weakens the Rule of Two check.
+17. **Meta Rule of Two source.** The original page returned 403; the wording comes from two
+    articles that quote it. Re-read the original and adjust `guardrails.md` if it differs.

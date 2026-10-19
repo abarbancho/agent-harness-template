@@ -1,0 +1,16 @@
+{
+  "mode": "unattended",
+  "default": "deny",
+  "rules": [
+    { "sideEffects": ["none", "read"], "external": false, "decision": "allow", "reason": "Pure or read-only, inside the project" },
+    { "tool": "send_email", "decision": "confirm", "reason": "Irreversible: a human approves each message" },
+    { "tool": "delete_*", "decision": "deny", "reason": "Deleting is never done by the agent" }
+  ],
+  "sensitiveTools": ["read_customer_record", "read_secrets_*"],
+  "untrustedSources": ["fetch_url", "read_inbox"],
+  "ruleOfTwo": "deny",
+  "maxToolCalls": 50,
+  "perToolMaxCalls": { "send_email": 3 },
+  "confirmTimeoutSeconds": 120,
+  "limits": { "maxSteps": 15, "maxWallSeconds": 300 }
+}
