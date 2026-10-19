@@ -1,5 +1,5 @@
 {
   "name": "observability",
-  "description": "Trace events contract (OpenTelemetry-compatible) with tokens and cost.",
+  "description": "Trace contract following the OpenTelemetry GenAI conventions: span tree, attributes, mapping from the runtime contracts, what not to record.",
   "requires": ["runtime"]
 }

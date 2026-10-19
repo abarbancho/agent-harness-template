@@ -1,0 +1,16 @@
+{
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
+  "spanId": "e457b5a2e4d86bd1",
+  "parentSpanId": "00f067aa0ba902b7",
+  "name": "execute_tool send_email",
+  "kind": "internal",
+  "startTime": "2026-10-19T09:30:04.000Z",
+  "endTime": "2026-10-19T09:30:04.010Z",
+  "status": { "code": "error", "message": "denied by policy" },
+  "attributes": {
+    "gen_ai.operation.name": "execute_tool",
+    "gen_ai.tool.name": "send_email",
+    "gen_ai.tool.call.id": "call_2",
+    "harness.step": 2
+  }
+}

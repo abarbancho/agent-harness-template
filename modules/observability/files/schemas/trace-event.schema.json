@@ -1,6 +1,139 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/trace-event.schema.json",
   "title": "Trace event",
-  "description": "TODO: define. Each schema ships with a valid example instance.",
-  "type": "object"
+  "description": "One finished span of an agent run, one per line in traces.jsonl. It maps one to one onto an OpenTelemetry span. Attribute names follow the OpenTelemetry GenAI semantic conventions, which are in Development status.",
+  "type": "object",
+  "required": ["traceId", "spanId", "name", "kind", "startTime", "endTime", "status", "attributes"],
+  "properties": {
+    "traceId": { "type": "string", "pattern": "^[a-f0-9]{32}$" },
+    "spanId": { "type": "string", "pattern": "^[a-f0-9]{16}$" },
+    "parentSpanId": {
+      "description": "Absent on the root span, which is the invoke_agent span.",
+      "type": "string",
+      "pattern": "^[a-f0-9]{16}$"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "kind": { "enum": ["internal", "client"] },
+    "startTime": { "$ref": "#/$defs/timestamp" },
+    "endTime": { "$ref": "#/$defs/timestamp" },
+    "status": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "code": { "enum": ["ok", "error"] },
+        "message": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "attributes": {
+      "description": "Keys live in the gen_ai, harness, error, server or app namespaces.",
+      "type": "object",
+      "required": ["gen_ai.operation.name"],
+      "propertyNames": { "pattern": "^(gen_ai|harness|error|server|app)\\.[a-z0-9_.]+$" },
+      "properties": {
+        "gen_ai.operation.name": { "enum": ["invoke_agent", "chat", "execute_tool"] },
+        "gen_ai.provider.name": { "type": "string", "minLength": 1 },
+        "gen_ai.agent.name": { "type": "string", "minLength": 1 },
+        "gen_ai.conversation.id": { "type": "string", "minLength": 1 },
+        "gen_ai.request.model": { "type": "string", "minLength": 1 },
+        "gen_ai.request.max_tokens": { "type": "integer", "minimum": 1 },
+        "gen_ai.response.id": { "type": "string" },
+        "gen_ai.response.model": { "type": "string" },
+        "gen_ai.response.finish_reasons": { "type": "array", "items": { "type": "string" } },
+        "gen_ai.usage.input_tokens": { "type": "integer", "minimum": 0 },
+        "gen_ai.usage.output_tokens": { "type": "integer", "minimum": 0 },
+        "gen_ai.usage.cache_read.input_tokens": { "type": "integer", "minimum": 0 },
+        "gen_ai.usage.cache_write.input_tokens": { "type": "integer", "minimum": 0 },
+        "gen_ai.tool.name": { "type": "string", "minLength": 1 },
+        "gen_ai.tool.call.id": { "type": "string", "minLength": 1 },
+        "gen_ai.tool.type": { "type": "string" },
+        "gen_ai.tool.description": { "type": "string" },
+        "gen_ai.tool.call.arguments": {},
+        "gen_ai.tool.call.result": {},
+        "gen_ai.input.messages": {},
+        "gen_ai.output.messages": {},
+        "gen_ai.system_instructions": {},
+        "gen_ai.tool.definitions": {},
+        "error.type": { "type": "string", "minLength": 1 },
+        "harness.run.id": { "type": "string", "minLength": 1 },
+        "harness.run.status": { "enum": ["completed", "limit_reached", "truncated", "refused", "failed"] },
+        "harness.step": { "description": "Which model call of the run, from 1.", "type": "integer", "minimum": 1 },
+        "harness.steps": { "description": "Model calls in the whole run.", "type": "integer", "minimum": 0 },
+        "harness.tool.side_effects": { "enum": ["none", "read", "write", "irreversible"] },
+        "harness.tool.external": { "type": "boolean" },
+        "harness.policy.decision": { "enum": ["allow", "confirm", "deny"] },
+        "harness.policy.outcome": { "enum": ["allowed", "denied", "approved", "rejected", "timed_out"] },
+        "harness.content.truncated": { "type": "boolean" }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "required": ["attributes"],
+        "properties": { "attributes": { "type": "object", "required": ["gen_ai.operation.name"], "properties": { "gen_ai.operation.name": { "const": "invoke_agent" } } } }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "kind": { "const": "internal" },
+          "name": { "type": "string", "pattern": "^invoke_agent( .+)?$" },
+          "attributes": { "type": "object", "required": ["gen_ai.agent.name", "harness.run.id"] }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": ["attributes"],
+        "properties": { "attributes": { "type": "object", "required": ["gen_ai.operation.name"], "properties": { "gen_ai.operation.name": { "const": "chat" } } } }
+      },
+      "then": {
+        "type": "object",
+        "required": ["parentSpanId"],
+        "properties": {
+          "kind": { "const": "client" },
+          "name": { "type": "string", "pattern": "^chat .+$" },
+          "attributes": { "type": "object", "required": ["gen_ai.provider.name", "gen_ai.request.model", "harness.step"] }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": ["attributes"],
+        "properties": { "attributes": { "type": "object", "required": ["gen_ai.operation.name"], "properties": { "gen_ai.operation.name": { "const": "execute_tool" } } } }
+      },
+      "then": {
+        "type": "object",
+        "required": ["parentSpanId"],
+        "properties": {
+          "kind": { "const": "internal" },
+          "name": { "type": "string", "pattern": "^execute_tool .+$" },
+          "attributes": { "type": "object", "required": ["gen_ai.tool.name", "gen_ai.tool.call.id", "harness.step"] }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": ["status"],
+        "properties": { "status": { "type": "object", "required": ["code"], "properties": { "code": { "const": "error" } } } }
+      },
+      "then": {
+        "type": "object",
+        "properties": { "attributes": { "type": "object", "required": ["error.type"] } }
+      }
+    }
+  ],
+  "$defs": {
+    "timestamp": {
+      "description": "RFC 3339.",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    }
+  }
 }

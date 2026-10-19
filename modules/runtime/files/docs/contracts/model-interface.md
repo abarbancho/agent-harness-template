@@ -50,6 +50,7 @@ avoid: drop it, or have the adapter drop it.
 | `inputTokens` | **All** input tokens processed, cached ones included |
 | `outputTokens` | Output tokens |
 | `cachedInputTokens` | The part of `inputTokens` served from cache (optional) |
+| `cacheWriteInputTokens` | The part of `inputTokens` written to cache by this call (optional) |
 | `raw` | The provider usage object, unmodified (optional) |
 
 Providers count differently, so the adapter normalizes. Always keep `raw`.
@@ -86,6 +87,7 @@ One reference adapter. Add a column per provider your project supports.
 | `stopReason` `other` | anything else |
 | `usage.inputTokens` | `input_tokens + cache_creation_input_tokens + cache_read_input_tokens` |
 | `usage.cachedInputTokens` | `cache_read_input_tokens` |
+| `usage.cacheWriteInputTokens` | `cache_creation_input_tokens` |
 | `usage.raw` | the `usage` object |
 
 Resuming after `paused` (`pause_turn`): send the same messages again, ending on the

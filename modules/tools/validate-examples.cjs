@@ -1,6 +1,6 @@
 // Template maintenance tool. Not copied to projects: init deletes modules/.
 // Checks every non-stub schema against its examples:
-//   schemas/examples/<name>.valid.json   must validate
+//   schemas/examples/<name>.valid.json   must validate (an array: every element must)
 //   schemas/examples/<name>.invalid.json must NOT validate (the first error is printed so a
 //   human can confirm it fails for the intended reason)
 //
@@ -50,9 +50,13 @@ for (const s of schemas) {
   for (const kind of ['valid', 'invalid']) {
     const file = path.join(s.dir, 'examples', `${s.name}.${kind}.json`);
     if (!fs.existsSync(file)) { fail(`missing example: ${path.relative(root, file)}`); continue; }
-    const ok = validate(read(file));
-    if (kind === 'valid' && ok) console.log('  ok   valid example validates');
-    else if (kind === 'valid') fail('valid example rejected: ' + ajv.errorsText(validate.errors));
+    const data = read(file);
+    // A valid example may be an array: every element must validate (a whole span tree, say).
+    const items = kind === 'valid' && Array.isArray(data) ? data : [data];
+    const rejected = items.findIndex((item) => !validate(item));
+    const ok = rejected === -1;
+    if (kind === 'valid' && ok) console.log(`  ok   valid example validates${items.length > 1 ? ` (${items.length} items)` : ''}`);
+    else if (kind === 'valid') { validate(items[rejected]); fail(`valid example rejected (item ${rejected}): ` + ajv.errorsText(validate.errors)); }
     else if (!ok) console.log(`  ok   invalid example rejected (${validate.errors[0].instancePath || '/'} ${validate.errors[0].message})`);
     else fail('invalid example was accepted');
   }

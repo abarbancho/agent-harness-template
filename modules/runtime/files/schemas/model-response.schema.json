@@ -69,6 +69,11 @@
           "type": "integer",
           "minimum": 0
         },
+        "cacheWriteInputTokens": {
+          "description": "The part of inputTokens written to cache by this call.",
+          "type": "integer",
+          "minimum": 0
+        },
         "raw": {
           "description": "The provider usage object, unmodified.",
           "type": "object"

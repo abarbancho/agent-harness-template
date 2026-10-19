@@ -23,7 +23,8 @@
       "properties": {
         "inputTokens": { "type": "integer", "minimum": 0 },
         "outputTokens": { "type": "integer", "minimum": 0 },
-        "cachedInputTokens": { "type": "integer", "minimum": 0 }
+        "cachedInputTokens": { "type": "integer", "minimum": 0 },
+        "cacheWriteInputTokens": { "type": "integer", "minimum": 0 }
       },
       "additionalProperties": false
     }

@@ -1,0 +1,1 @@
+- **Never put secrets or personal data in span attributes.** Content attributes (messages, tool arguments and results) stay off unless a project turns them on, and are redacted when on.

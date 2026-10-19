@@ -23,10 +23,13 @@ Harness design decisions not yet made.
    `TEMPLATE.md`).
 10. **Tool annotations.** `annotations` is an open object because the MCP annotation field
     names could not be confirmed against the current spec revision. Name them once verified.
-11. **Trace events** (`observability`) should follow the OpenTelemetry GenAI conventions,
-    which are in Development status and now live in
-    `open-telemetry/semantic-conventions-genai`. The `execute_tool` attribute table was not
-    read yet. Pin the convention version when filling the module in.
+11. **OpenTelemetry GenAI conventions are in Development status** and live in
+    `open-telemetry/semantic-conventions-genai`. `trace-events.md` was written from the main
+    branch on 2026-10-19; no release was pinned. The base `execute_tool` section of the spans
+    page was read only in part (attributes came from the skill refinements in the agent spans
+    page), and the nesting of `chat` and `execute_tool` under `invoke_agent` is this
+    template own rule, not a convention. Re-read and pin when the repository publishes
+    releases. The value of `gen_ai.tool.type` is not constrained for the same reason.
 12. **Schema validation in CI.** `modules/tools/validate-examples.cjs` is run by hand. Run it
     in the template repository CI once the repo exists.
 13. **No model adapter ships.** `model-interface.md` documents the Anthropic mapping only;
@@ -35,9 +38,9 @@ Harness design decisions not yet made.
     `{{CHECK_CMD}}`, a command that does not exist here. Add a template-only block that
     `init` strips (as it does for `README.md`) pointing maintainers at
     `modules/tools/validate-examples.cjs` instead.
-15. **Permanent SKIPs in `full`.** The `backlog` and `trace-event` stubs show as
-    `[SKIP]` in every harness check, and the definition of done asks to justify each skip.
-    They go away as those modules are filled in.
+15. **Permanent SKIP in `full`.** The `backlog` stub shows as `[SKIP]` in every harness
+    check, and the definition of done asks to justify each skip. It goes away when the
+    module is filled in.
 16. **No policy engine ships.** `guardrails.md` gives the evaluation algorithm and the
     schemas; a project writes the hook. The `sensitiveTools` and `untrustedSources` lists
     are maintained by hand, so an unclassified tool silently weakens the Rule of Two check.
