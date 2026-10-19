@@ -1,0 +1,4 @@
+{
+  "role": "tool",
+  "content": [ { "type": "text", "text": "A tool message may only hold tool_result blocks." } ]
+}

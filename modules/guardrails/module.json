@@ -1,0 +1,5 @@
+{
+  "name": "guardrails",
+  "description": "Tool policy, budgets, human-in-the-loop points, prompt-injection defense.",
+  "requires": []
+}

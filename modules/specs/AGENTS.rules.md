@@ -1,0 +1,1 @@
+- **Spec before code for medium and large tasks.** Classify with `docs/process/scaling.md`; stop at the human gates it defines.

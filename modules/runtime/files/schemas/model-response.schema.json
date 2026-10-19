@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/model-response.schema.json",
+  "title": "Model response",
+  "description": "Provider-neutral response from a model.",
+  "type": "object",
+  "required": [
+    "model",
+    "message",
+    "stopReason",
+    "usage"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "message": {
+      "allOf": [
+        {
+          "$ref": "https://harness.example/schemas/message.schema.json"
+        },
+        {
+          "properties": {
+            "role": {
+              "const": "assistant"
+            }
+          },
+          "type": "object"
+        }
+      ]
+    },
+    "stopReason": {
+      "description": "end: finished. tool_calls: wants tools run. length: hit the output limit. refusal: declined. paused: provider paused the turn, continue. other: anything else.",
+      "enum": [
+        "end",
+        "tool_calls",
+        "length",
+        "refusal",
+        "paused",
+        "other"
+      ]
+    },
+    "stopDetail": {
+      "description": "Provider detail, for example a refusal category.",
+      "type": "string"
+    },
+    "usage": {
+      "type": "object",
+      "required": [
+        "inputTokens",
+        "outputTokens"
+      ],
+      "properties": {
+        "inputTokens": {
+          "description": "All input tokens processed, including cached ones.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "outputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cachedInputTokens": {
+          "description": "The part of inputTokens served from cache.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw": {
+          "description": "The provider usage object, unmodified.",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

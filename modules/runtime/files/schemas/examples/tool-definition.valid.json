@@ -1,0 +1,10 @@
+{
+  "name": "get_weather",
+  "title": "Weather lookup",
+  "description": "Get current weather for a location.",
+  "inputSchema": {
+    "type": "object",
+    "properties": { "location": { "type": "string", "description": "City name or zip code" } },
+    "required": ["location"]
+  }
+}

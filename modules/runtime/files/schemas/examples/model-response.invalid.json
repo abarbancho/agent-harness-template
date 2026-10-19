@@ -1,0 +1,6 @@
+{
+  "model": "provider-model-id",
+  "message": { "role": "assistant", "content": [ { "type": "text", "text": "Done." } ] },
+  "stopReason": "end_turn",
+  "usage": { "inputTokens": 10, "outputTokens": 2 }
+}

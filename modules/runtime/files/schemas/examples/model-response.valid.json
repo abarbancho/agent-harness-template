@@ -1,0 +1,10 @@
+{
+  "id": "resp_1",
+  "model": "provider-model-id",
+  "message": {
+    "role": "assistant",
+    "content": [ { "type": "tool_call", "id": "call_1", "name": "get_weather", "arguments": { "location": "Madrid" } } ]
+  },
+  "stopReason": "tool_calls",
+  "usage": { "inputTokens": 1200, "outputTokens": 40, "cachedInputTokens": 1000 }
+}

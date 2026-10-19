@@ -1,0 +1,4 @@
+{
+  "lite": [],
+  "full": ["specs", "roles", "backlog", "runtime", "memory", "observability", "guardrails", "evals"]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/tool.schema.json",
+  "title": "Tool declaration",
+  "description": "A tool as the harness knows it: the model-visible definition plus facts the harness owns.",
+  "type": "object",
+  "required": ["name", "description", "inputSchema", "sideEffects"],
+  "properties": {
+    "name": { "$ref": "https://harness.example/schemas/tool-definition.schema.json#/properties/name" },
+    "title": { "$ref": "https://harness.example/schemas/tool-definition.schema.json#/properties/title" },
+    "description": { "$ref": "https://harness.example/schemas/tool-definition.schema.json#/properties/description" },
+    "inputSchema": { "$ref": "https://harness.example/schemas/tool-definition.schema.json#/properties/inputSchema" },
+    "outputSchema": { "$ref": "https://harness.example/schemas/tool-definition.schema.json#/properties/outputSchema" },
+    "sideEffects": {
+      "description": "Set by the harness author, never taken from the tool annotations. none: pure computation. read: reads state, changes nothing. write: changes state in a way that can be undone. irreversible: cannot be undone (delete, send, pay, publish).",
+      "enum": ["none", "read", "write", "irreversible"]
+    },
+    "external": {
+      "description": "True if the tool reaches outside the project environment (network, third parties). Default false.",
+      "type": "boolean"
+    },
+    "annotations": {
+      "description": "Untrusted hints from the tool author (for example MCP annotations). Never used for permission decisions.",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,5 @@
+{
+  "name": "runtime",
+  "description": "Agent runtime contracts: agent loop, tool declaration, model interface, with JSON Schemas.",
+  "requires": []
+}

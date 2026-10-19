@@ -1,0 +1,5 @@
+{
+  "name": "memory",
+  "description": "Memory and context contract: context budget, compaction, persistent notes, session resume.",
+  "requires": ["runtime"]
+}

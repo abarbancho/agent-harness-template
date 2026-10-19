@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/model-request.schema.json",
+  "title": "Model request",
+  "description": "Provider-neutral request to a model. Provider-specific settings go in providerOptions.",
+  "type": "object",
+  "required": ["model", "messages"],
+  "properties": {
+    "model": { "description": "Opaque provider model identifier.", "type": "string", "minLength": 1 },
+    "system": { "type": "string" },
+    "messages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "https://harness.example/schemas/message.schema.json" }
+    },
+    "tools": {
+      "type": "array",
+      "items": { "$ref": "https://harness.example/schemas/tool-definition.schema.json" }
+    },
+    "maxOutputTokens": { "type": "integer", "minimum": 1 },
+    "providerOptions": {
+      "description": "Opaque, passed to the adapter as is (for example thinking or effort settings).",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

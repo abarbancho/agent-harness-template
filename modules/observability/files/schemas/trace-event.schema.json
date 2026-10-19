@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Trace event",
+  "description": "TODO: define. Each schema ships with a valid example instance.",
+  "type": "object"
+}

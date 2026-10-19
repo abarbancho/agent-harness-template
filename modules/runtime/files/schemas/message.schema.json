@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/message.schema.json",
+  "title": "Message",
+  "description": "One entry of the conversation history. History is append-only.",
+  "type": "object",
+  "required": [
+    "role",
+    "content"
+  ],
+  "properties": {
+    "role": {
+      "enum": [
+        "user",
+        "assistant",
+        "tool"
+      ]
+    },
+    "content": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/block"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "user"
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "then": {
+        "properties": {
+          "content": {
+            "items": {
+              "properties": {
+                "type": {
+                  "const": "text"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "assistant"
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "then": {
+        "properties": {
+          "content": {
+            "items": {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "text",
+                    "tool_call",
+                    "opaque"
+                  ]
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "tool"
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "then": {
+        "properties": {
+          "content": {
+            "items": {
+              "properties": {
+                "type": {
+                  "const": "tool_result"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "textBlock": {
+      "type": "object",
+      "required": [
+        "type",
+        "text"
+      ],
+      "properties": {
+        "type": {
+          "const": "text"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "toolCallBlock": {
+      "description": "The model asks for a tool to run. Every call gets exactly one result.",
+      "type": "object",
+      "required": [
+        "type",
+        "id",
+        "name",
+        "arguments"
+      ],
+      "properties": {
+        "type": {
+          "const": "tool_call"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]{1,128}$"
+        },
+        "arguments": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "toolResultBlock": {
+      "type": "object",
+      "required": [
+        "type",
+        "callId",
+        "content"
+      ],
+      "properties": {
+        "type": {
+          "const": "tool_result"
+        },
+        "callId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/textBlock"
+          }
+        },
+        "structuredContent": {},
+        "isError": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "opaqueBlock": {
+      "description": "Provider-specific block (for example thinking or compaction). Keep unchanged and send back only to the provider that produced it.",
+      "type": "object",
+      "required": [
+        "type",
+        "provider",
+        "data"
+      ],
+      "properties": {
+        "type": {
+          "const": "opaque"
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "block": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/textBlock"
+        },
+        {
+          "$ref": "#/$defs/toolCallBlock"
+        },
+        {
+          "$ref": "#/$defs/toolResultBlock"
+        },
+        {
+          "$ref": "#/$defs/opaqueBlock"
+        }
+      ]
+    }
+  }
+}

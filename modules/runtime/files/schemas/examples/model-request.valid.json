@@ -1,0 +1,14 @@
+{
+  "model": "provider-model-id",
+  "system": "You are a helpful agent.",
+  "messages": [ { "role": "user", "content": [ { "type": "text", "text": "Weather in Madrid?" } ] } ],
+  "tools": [
+    {
+      "name": "get_weather",
+      "description": "Get current weather for a location.",
+      "inputSchema": { "type": "object", "properties": { "location": { "type": "string" } }, "required": ["location"] }
+    }
+  ],
+  "maxOutputTokens": 4096,
+  "providerOptions": { "effort": "medium" }
+}

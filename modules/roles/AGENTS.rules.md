@@ -1,0 +1,1 @@
+- **Roles do not self-approve.** The implementer never approves its own work; the reviewer never edits code. Subagents write results to files and return only the path.

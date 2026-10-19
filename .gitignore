@@ -1,0 +1,7 @@
+.env
+.env.*
+CLAUDE.local.md
+*.log
+.DS_Store
+.vscode/
+.idea/

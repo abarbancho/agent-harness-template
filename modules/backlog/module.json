@@ -1,0 +1,5 @@
+{
+  "name": "backlog",
+  "description": "Task backlog, one task in progress at a time, session lifecycle, append-only history.",
+  "requires": []
+}

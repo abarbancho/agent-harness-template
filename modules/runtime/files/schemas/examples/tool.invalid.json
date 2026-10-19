@@ -1,0 +1,6 @@
+{
+  "name": "get_weather",
+  "description": "sideEffects is not one of the allowed values.",
+  "inputSchema": { "type": "object" },
+  "sideEffects": "dangerous"
+}

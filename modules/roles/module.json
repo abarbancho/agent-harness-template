@@ -1,0 +1,5 @@
+{
+  "name": "roles",
+  "description": "Multi-agent roles: planner, spec-author, implementer, reviewer (tool-neutral definitions plus Claude Code adapters).",
+  "requires": ["specs"]
+}

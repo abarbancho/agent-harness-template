@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/tool-definition.schema.json",
+  "title": "Tool definition",
+  "description": "What the model is told about a tool. Same field names as an MCP Tool, without annotations.",
+  "type": "object",
+  "required": ["name", "description", "inputSchema"],
+  "properties": {
+    "name": {
+      "description": "Unique within one agent. Case-sensitive.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]{1,128}$"
+    },
+    "title": { "type": "string" },
+    "description": { "type": "string", "minLength": 1 },
+    "inputSchema": {
+      "description": "JSON Schema for the arguments. The root must describe an object.",
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "const": "object" } }
+    },
+    "outputSchema": {
+      "description": "Optional JSON Schema for structuredContent in the result.",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,1 @@
+- **Respect guardrails.** No tool, permission or budget change without updating `docs/guardrails.md`. Stop at its approval points; never self-approve.

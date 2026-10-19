@@ -1,0 +1,1 @@
+- **Change the contract first.** Contract and schema changes are made in `docs/contracts/` and `schemas/` before the code.

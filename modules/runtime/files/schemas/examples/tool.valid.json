@@ -1,0 +1,12 @@
+{
+  "name": "get_weather",
+  "description": "Get current weather for a location.",
+  "inputSchema": {
+    "type": "object",
+    "properties": { "location": { "type": "string" } },
+    "required": ["location"]
+  },
+  "sideEffects": "read",
+  "external": true,
+  "annotations": { "source": "third-party server" }
+}

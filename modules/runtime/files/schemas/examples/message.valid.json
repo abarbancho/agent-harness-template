@@ -1,0 +1,7 @@
+{
+  "role": "assistant",
+  "content": [
+    { "type": "text", "text": "I will check the weather." },
+    { "type": "tool_call", "id": "call_1", "name": "get_weather", "arguments": { "location": "Madrid" } }
+  ]
+}

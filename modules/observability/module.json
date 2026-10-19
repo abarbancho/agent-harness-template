@@ -1,0 +1,5 @@
+{
+  "name": "observability",
+  "description": "Trace events contract (OpenTelemetry-compatible) with tokens and cost.",
+  "requires": ["runtime"]
+}
