@@ -5,6 +5,13 @@ Template-only: `init` deletes this file, `modules/` and `scripts/init.*`.
 A template for starting AI agent projects: a development process for working with AI
 coding tools, plus language-agnostic contracts for the agent runtime.
 
+## License
+
+The template is MIT-licensed (`LICENSE`). `init` leaves `LICENSE` in place, so a generated
+project carries the template notice. MIT requires keeping it for the portions you reuse. If
+your project uses another license, replace the file and keep a copy of this notice for the
+template parts.
+
 ## Profiles
 
 - **lite** (the repo root as is): `AGENTS.md`, tool adapters, `progress/`, `evals/`.
