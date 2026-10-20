@@ -6,7 +6,7 @@
 #                           [--install-cmd CMD] [--run-cmd CMD] [--check-cmd CMD]
 #                           [--dry-run] [--keep]
 #   --dry-run  print what would change, touch nothing
-#   --keep     do not delete modules/, the init scripts and TEMPLATE.md afterwards
+#   --keep     do not delete modules/, the init scripts, TEMPLATE.md and the CI workflow afterwards
 set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -129,8 +129,9 @@ replace CHECK_CMD "$CHECK"
 
 if [ "$DRY" = 0 ] && [ "$KEEP" = 0 ]; then
   rm -rf "$MODS"
-  rm -f "$ROOT/scripts/init.sh" "$ROOT/scripts/init.ps1" "$ROOT/TEMPLATE.md"
-  echo "Removed modules/, scripts/init.* and TEMPLATE.md"
+  rm -f "$ROOT/scripts/init.sh" "$ROOT/scripts/init.ps1" "$ROOT/TEMPLATE.md" "$ROOT/.github/workflows/template-ci.yml"
+  rmdir "$ROOT/.github/workflows" 2>/dev/null || true
+  echo "Removed modules/, scripts/init.*, TEMPLATE.md and the template CI workflow"
 fi
 
 if [ "$DRY" = 0 ]; then

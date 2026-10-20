@@ -1,6 +1,7 @@
 # Using this template
 
-Template-only: `init` deletes this file, `modules/` and `scripts/init.*`, and strips the
+Template-only: `init` deletes this file, `modules/`, `scripts/init.*` and the CI workflow
+`.github/workflows/template-ci.yml`, and strips the
 `<!-- template:start -->` blocks from `README.md` and `AGENTS.md`.
 
 A template for starting AI agent projects: a development process for working with AI
@@ -66,6 +67,13 @@ It also validates the instances that modules ship (`config/guardrails.policy.jso
 (unique ids, dependencies that exist and do not cycle). `scripts/check.*` only checks that the
 example files exist.
 
+CI: `.github/workflows/template-ci.yml` runs `modules/tools/smoke.sh` on Linux, macOS and
+Windows for every push to `main` and every pull request. The script checks the template,
+then runs `init.sh` and `init.ps1` (every PowerShell found) on separate copies for `lite`,
+`full`, `lite` + `memory` and `lite` + `roles`, runs `check` on each result, and fails if the two
+variants differ in files or content. Run it by hand with
+`AJV_DIR=/some/dir sh modules/tools/smoke.sh`. `init` deletes the workflow.
+
 ## What was verified
 
 Checked on Windows only: Git Bash (GNU tools) and Windows PowerShell 5.1. The two `init`
@@ -75,8 +83,8 @@ inputs. The two `check` variants produced identical output on the template, on g
 repository map row pointing to a missing path, a schema without an example). Every
 schema was validated against its examples with Ajv 2020, and against edge-case probes written
 for the maintenance session and not kept in the repo. Nothing in the contracts was run against
-a real model or provider. Not tested: macOS (BSD
-`sed`/`awk`), Linux with `dash`, PowerShell 7.
+a real model or provider. Not tested by hand: macOS (BSD
+`sed`/`awk`), Linux with `dash`, PowerShell 7. The CI workflow covers them once it has run.
 
 Known quirk: on Windows, Git Bash `sed` and `awk` drop carriage returns, so `init.sh`
 rewrites `AGENTS.md` and `README.md` with LF endings. `.gitattributes` (`text=auto`)

@@ -5,7 +5,7 @@
 #          -Name NAME [-Profile lite|full] [-Modules a,b]
 #          [-InstallCmd CMD] [-RunCmd CMD] [-CheckCmd CMD] [-DryRun] [-Keep]
 #   -DryRun  print what would change, touch nothing
-#   -Keep    do not delete modules/, the init scripts and TEMPLATE.md afterwards
+#   -Keep    do not delete modules/, the init scripts, TEMPLATE.md and the CI workflow afterwards
 param(
   [string]$Name = '',
   [string]$Profile = 'lite',
@@ -133,8 +133,10 @@ Replace-Placeholder 'CHECK_CMD' $CheckCmd
 
 if ((-not $DryRun) -and (-not $Keep)) {
   Remove-Item -Recurse -Force $Mods
-  Remove-Item -Force (Join-Path $Root 'scripts/init.sh'), (Join-Path $Root 'scripts/init.ps1'), (Join-Path $Root 'TEMPLATE.md') -ErrorAction SilentlyContinue
-  Write-Output 'Removed modules/, scripts/init.* and TEMPLATE.md'
+  $wf = Join-Path $Root '.github/workflows'
+  Remove-Item -Force (Join-Path $Root 'scripts/init.sh'), (Join-Path $Root 'scripts/init.ps1'), (Join-Path $Root 'TEMPLATE.md'), (Join-Path $wf 'template-ci.yml') -ErrorAction SilentlyContinue
+  if ((Test-Path $wf) -and -not (Get-ChildItem -Path $wf -Force)) { Remove-Item -Force $wf }
+  Write-Output 'Removed modules/, scripts/init.*, TEMPLATE.md and the template CI workflow'
 }
 
 if (-not $DryRun) {

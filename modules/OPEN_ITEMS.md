@@ -18,8 +18,10 @@ Harness design decisions not yet made.
    arrays must stay on one line. Revisit if the metadata grows.
 7. **`init` re-runs.** `init` deletes itself, so adding a module later means copying it by
    hand from the template. Decide whether to keep `modules/` and `init.*` instead.
-8. **Cross-platform verification.** `init` and `check` were only tested on Windows (see
-   `TEMPLATE.md`).
+8. **Cross-platform verification.** `init` and `check` were tested by hand only on Windows.
+   `.github/workflows/template-ci.yml` runs `modules/tools/smoke.sh` on Linux, macOS and
+   Windows (Windows PowerShell 5.1 and PowerShell 7). Until that workflow has run green on
+   all three, macOS, Linux and PowerShell 7 count as unverified.
 9. **Tool annotations.** `annotations` is an open object because the MCP annotation field
     names could not be confirmed against the current spec revision. Name them once verified.
 10. **OpenTelemetry GenAI conventions are in Development status** and live in
@@ -29,8 +31,9 @@ Harness design decisions not yet made.
     page), and the nesting of `chat` and `execute_tool` under `invoke_agent` is this
     template own rule, not a convention. Re-read and pin when the repository publishes
     releases. The value of `gen_ai.tool.type` is not constrained for the same reason.
-11. **Schema validation in CI.** `modules/tools/validate-examples.cjs` is run by hand. Run it
-    in the template repository CI once the repo exists.
+11. **Generated projects ship no CI.** The template workflow is deleted by `init` because it
+    tests the template, not a project. A project adds its own workflow that runs the project
+    check and the harness check.
 12. **No model adapter ships.** `model-interface.md` documents the Anthropic mapping only;
     adapters are written per project.
 13. **No policy engine ships.** `guardrails.md` gives the evaluation algorithm and the
