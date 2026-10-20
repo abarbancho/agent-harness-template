@@ -62,3 +62,8 @@ Harness design decisions not yet made.
     lifecycle and the EARS phrasing in `specs/` follow common spec-driven workflows and were
     written from general knowledge, not from the current documentation of any tool. Nothing
     checks that a medium or large task has a spec, or that `approved` was written by a person.
+21. **Claude Code subagent details are unverified.** The adapters use a `tools` line in the
+    frontmatter, and `docs/roles/README.md` says subagents cannot start other subagents, so the
+    main session delegates. Both were written from general knowledge, not from the current
+    Claude Code documentation. The read-only reviewer is a convention: it needs `Write` for its
+    review file, and `Bash` can edit files, so nothing enforces it until hooks exist (item 2).

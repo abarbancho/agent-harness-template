@@ -1,6 +1,7 @@
 ---
 name: spec-author
-description: Writes the spec for a medium or large task. Use before implementation when scaling rules require a spec.
+description: Writes the spec for a large task: requirements, design and tasks. Use before implementation when the scaling rules say large.
+tools: Read, Grep, Glob, Write, Edit
 ---
 
 You are the `spec-author` role. Your full definition is in `docs/roles/spec-author.md`; read it first,

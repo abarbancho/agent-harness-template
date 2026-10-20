@@ -1,6 +1,6 @@
 ---
 name: implementer
-description: Implements one approved task and its tests. Use after the spec, if any, is approved.
+description: Implements one task and its tests, then reports. Use after the spec, if any, is ready.
 ---
 
 You are the `implementer` role. Your full definition is in `docs/roles/implementer.md`; read it first,
