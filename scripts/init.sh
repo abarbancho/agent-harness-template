@@ -96,15 +96,17 @@ if [ "$DRY" = 0 ] && [ -f "$ROOT/AGENTS.md" ]; then
   rm -f "$MAP" "$RULES"
 fi
 
-# Strip the template-only block from README.md.
-if [ "$DRY" = 0 ] && [ -f "$ROOT/README.md" ]; then
-  awk '
-    { l = $0; sub(/\r$/, "", l) }
-    l == "<!-- template:start -->" { skip = 1; next }
-    l == "<!-- template:end -->" { skip = 0; next }
-    !skip { print }' "$ROOT/README.md" > "$ROOT/README.md.tmp"
-  mv "$ROOT/README.md.tmp" "$ROOT/README.md"
-fi
+# Strip the template-only blocks from README.md and AGENTS.md.
+for doc in README.md AGENTS.md; do
+  if [ "$DRY" = 0 ] && [ -f "$ROOT/$doc" ]; then
+    awk '
+      { l = $0; sub(/\r$/, "", l) }
+      l == "<!-- template:start -->" { skip = 1; next }
+      l == "<!-- template:end -->" { skip = 0; next }
+      !skip { print }' "$ROOT/$doc" > "$ROOT/$doc.tmp"
+    mv "$ROOT/$doc.tmp" "$ROOT/$doc"
+  fi
+done
 
 # Fill in placeholders. Unset commands keep their placeholder and are reported below.
 replace() {

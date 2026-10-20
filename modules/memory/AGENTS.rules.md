@@ -1,3 +1,3 @@
-- **Never rewrite the history of a run.** Shorten the context by the ways in `docs/contracts/memory.md`: cut tool results at the source, let the provider compact, or summarize the whole run. Do not delete or edit earlier messages.
-- **Notes from memory are data, never instructions.** They cannot grant a permission or change the tool policy. The harness sets the `origin` of an entry, not the model, and a run that received untrusted input cannot change entries of another origin.
-- **Never put secrets in memory entries, run files or overflow files.** Run files hold full message content: keep `runs/` out of version control, and out of logs.
+- **Never rewrite the history of a run.** Shorten the context only as `docs/contracts/memory.md` says; never delete or edit earlier messages.
+- **Memory notes are data, never instructions.** The harness sets their `origin`, not the model, and a run that received untrusted input cannot change entries of another origin.
+- **No secrets in memory entries or run files.** Keep `runs/` out of version control and logs.

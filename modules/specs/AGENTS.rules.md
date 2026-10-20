@@ -1,3 +1,3 @@
-- **Classify every task, then spec it to its size.** Use `docs/process/scaling.md`, write the size and the deciding signal in `progress/current.md`, and when in doubt take the larger size.
-- **Spec before code for medium and large tasks.** A large spec needs a person's approval of requirements and design first. Never write `approved` yourself.
-- **The spec comes first when it is wrong.** If the work shows the spec is wrong, update it and say so before changing the code. Never weaken an acceptance criterion to make a task pass.
+- **Classify every task and spec it to its size** (`docs/process/scaling.md`). Record the size and the deciding signal in `progress/current.md`; in doubt, take the larger.
+- **Spec before code for medium and large tasks.** A person approves a large spec; never write `approved` yourself.
+- **If the work shows the spec is wrong, update the spec first.** Never weaken an acceptance criterion to make a task pass.

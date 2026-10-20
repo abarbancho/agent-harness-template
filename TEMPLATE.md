@@ -1,6 +1,7 @@
 # Using this template
 
-Template-only: `init` deletes this file, `modules/` and `scripts/init.*`.
+Template-only: `init` deletes this file, `modules/` and `scripts/init.*`, and strips the
+`<!-- template:start -->` blocks from `README.md` and `AGENTS.md`.
 
 A template for starting AI agent projects: a development process for working with AI
 coding tools, plus language-agnostic contracts for the agent runtime.

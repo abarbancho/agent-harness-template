@@ -1,2 +1,2 @@
-- **Roles do not self-approve.** The implementer never approves its own work; the reviewer never edits code and starts from the spec and the diff, not from the implementer account. Subagents write results to files and return only the path.
-- **Delegate with a brief, check with evidence.** A brief names the task, the paths to read, the path to write and the check that says it is done. A task is closed by a reviewer verdict or a person, never by the implementer saying it is done.
+- **Roles do not self-approve.** The implementer never approves its own work; the reviewer never edits code and starts from the spec and the diff. Subagents write results to files and return only the path.
+- **Delegate with a brief.** It names the task, the paths to read, the path to write and the check that says it is done. Only a reviewer verdict or a person closes a task.

@@ -1,4 +1,12 @@
 # AGENTS.md — {{PROJECT_NAME}}
+<!-- template:start -->
+> **You are in the template repository, not in a project.** The `{{...}}` placeholders in
+> this file are filled in by `scripts/init.*` and are not errors; ignore the commands table.
+> Read `TEMPLATE.md` and `modules/OPEN_ITEMS.md` first. To check a change, run
+> `sh scripts/check.sh` (it skips the placeholder check while `modules/` exists) and
+> `AJV_DIR=<dir with ajv@8> node modules/tools/validate-examples.cjs`. A change to `init` or
+> `check` goes into both variants (`.sh` and `.ps1`) and is tested on both.
+<!-- template:end -->
 
 > Single source of truth for every AI coding tool in this repo (Claude Code, Cursor,
 > Copilot, Codex, ...). It is a **map, not a manual**: read only what the task needs.

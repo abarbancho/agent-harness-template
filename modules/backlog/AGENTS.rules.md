@@ -1,4 +1,4 @@
-- **One task at a time.** At most one task `in_progress` in `backlog.json`. Resume it before starting another.
-- **New work goes in the backlog.** Anything else you find is added as a `todo` task, not done inside the current one, unless the user asks.
-- **A task ends done, paused or blocked, never silently.** Update `backlog.json`, append to `progress/history.md` and bring `progress/current.md` up to date. `done` needs the output of both checks.
-- **History is append-only.** Never edit or delete an earlier entry; add a new one.
+- **Start from the backlog.** Follow the start checklist in `docs/process/session-lifecycle.md`: resume the task in progress, if any, before starting another.
+- **One task at a time.** At most one task `in_progress` in `backlog.json`.
+- **New work goes in the backlog** as a `todo` task, not inside the current one, unless the user asks.
+- **Every task ends done, paused or blocked.** Update `backlog.json`, append to `progress/history.md` and update `progress/current.md`. `done` needs the output of both checks. History is append-only.

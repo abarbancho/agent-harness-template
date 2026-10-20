@@ -97,12 +97,14 @@ if ((-not $DryRun) -and (Test-Path $agents)) {
   WriteText $agents $text
 }
 
-# Strip the template-only block from README.md.
-$readme = Join-Path $Root 'README.md'
-if ((-not $DryRun) -and (Test-Path $readme)) {
-  $t = ReadText $readme
-  $t = [regex]::Replace($t, '(?s)<!-- template:start -->.*?<!-- template:end -->\r?\n', '')
-  WriteText $readme $t
+# Strip the template-only blocks from README.md and AGENTS.md.
+foreach ($doc in @('README.md', 'AGENTS.md')) {
+  $path = Join-Path $Root $doc
+  if ((-not $DryRun) -and (Test-Path $path)) {
+    $t = ReadText $path
+    $t = [regex]::Replace($t, '(?s)<!-- template:start -->.*?<!-- template:end -->\r?\n', '')
+    WriteText $path $t
+  }
 }
 
 # Fill in placeholders. Unset commands keep their placeholder and are reported below.
