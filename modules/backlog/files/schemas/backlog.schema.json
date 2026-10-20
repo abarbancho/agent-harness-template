@@ -1,6 +1,247 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harness.example/schemas/backlog.schema.json",
   "title": "Backlog",
-  "description": "TODO: define. Each schema ships with a valid example instance.",
-  "type": "object"
+  "description": "The tasks of the project, in priority order (first is next). At most one task is in progress. Ids are unique and dependsOn names existing ids; the schema cannot check those two.",
+  "type": "object",
+  "required": [
+    "tasks"
+  ],
+  "properties": {
+    "tasks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/task"
+      },
+      "contains": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "const": "in_progress"
+          }
+        }
+      },
+      "minContains": 0,
+      "maxContains": 1
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id": {
+      "description": "Three or more digits. The spec folder of the task, if any, starts with the same id.",
+      "type": "string",
+      "pattern": "^[0-9]{3,}$"
+    },
+    "date": {
+      "description": "YYYY-MM-DD.",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "task": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "status",
+        "createdAt"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "description": "One line.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^[^\\n\\r]+$"
+        },
+        "status": {
+          "enum": [
+            "todo",
+            "in_progress",
+            "blocked",
+            "done",
+            "dropped"
+          ]
+        },
+        "size": {
+          "description": "From docs/process/scaling.md, when the specs module is used. Set when work starts.",
+          "enum": [
+            "trivial",
+            "medium",
+            "large"
+          ]
+        },
+        "spec": {
+          "description": "Folder of the spec, for a medium or large task.",
+          "type": "string",
+          "pattern": "^specs/[0-9]{3,}-[a-z0-9][a-z0-9-]*/?$"
+        },
+        "dependsOn": {
+          "description": "Ids of tasks that must be done before this one starts.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "reason": {
+          "description": "Why the task is blocked or was dropped.",
+          "type": "string",
+          "minLength": 1
+        },
+        "outcome": {
+          "description": "One line on what was delivered, for a done task.",
+          "type": "string",
+          "minLength": 1
+        },
+        "createdAt": {
+          "$ref": "#/$defs/date"
+        },
+        "closedAt": {
+          "$ref": "#/$defs/date"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "description": "Work starts only after the size is known.",
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "in_progress",
+                  "done"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "size"
+            ]
+          }
+        },
+        {
+          "description": "A medium or large task has a spec before work starts.",
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "in_progress",
+                  "done"
+                ]
+              },
+              "size": {
+                "enum": [
+                  "medium",
+                  "large"
+                ]
+              }
+            },
+            "required": [
+              "status",
+              "size"
+            ]
+          },
+          "then": {
+            "required": [
+              "spec"
+            ]
+          }
+        },
+        {
+          "description": "A blocked or dropped task says why.",
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "blocked",
+                  "dropped"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "reason"
+            ]
+          }
+        },
+        {
+          "description": "A done task says what was delivered.",
+          "if": {
+            "properties": {
+              "status": {
+                "const": "done"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "outcome"
+            ]
+          }
+        },
+        {
+          "description": "A closed task has a closing date.",
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "done",
+                  "dropped"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "closedAt"
+            ]
+          }
+        },
+        {
+          "description": "An open task has no closing date.",
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "todo",
+                  "in_progress",
+                  "blocked"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "closedAt"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
 }

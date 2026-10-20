@@ -20,8 +20,8 @@ template parts.
   contracts, memory, observability, guardrails, evals). Pick modules individually with
   `--modules`; see `modules/README.md` for the module format and dependencies.
 
-Status: skeleton. Files marked `TODO` are stubs. Open design decisions are in
-`modules/OPEN_ITEMS.md`.
+Status: every module is filled in. Contracts only: no agent runtime, eval runner, policy
+engine or model adapter ships. Open design decisions are in `modules/OPEN_ITEMS.md`.
 
 ## Running init
 
@@ -60,7 +60,10 @@ AJV_DIR=/some/dir node modules/tools/validate-examples.cjs
 
 It skips stub schemas, requires every other schema to have both examples, and prints the
 first error of each invalid example so you can confirm it fails for the intended reason.
-`scripts/check.*` only checks that the example files exist.
+It also validates the instances that modules ship (`config/guardrails.policy.json`,
+`evals/suite.json`, `backlog.json`) and checks the backlog rules the schema cannot express
+(unique ids, dependencies that exist and do not cycle). `scripts/check.*` only checks that the
+example files exist.
 
 ## What was verified
 
@@ -68,8 +71,10 @@ Checked on Windows only: Git Bash (GNU tools) and Windows PowerShell 5.1. The tw
 variants produced identical trees for `lite`, `full` and a module subset, with LF and CRLF
 inputs. The two `check` variants produced identical output on the template, on generated
 `lite` and `full` projects, and on three injected failures (an unresolved placeholder, a
-repository map row pointing to a missing path, a schema without an example). The `runtime`
-schemas were validated against their examples with Ajv 2020. Not tested: macOS (BSD
+repository map row pointing to a missing path, a schema without an example). Every
+schema was validated against its examples with Ajv 2020, and against edge-case probes written
+for the maintenance session and not kept in the repo. Nothing in the contracts was run against
+a real model or provider. Not tested: macOS (BSD
 `sed`/`awk`), Linux with `dash`, PowerShell 7.
 
 Known quirk: on Windows, Git Bash `sed` and `awk` drop carriage returns, so `init.sh`

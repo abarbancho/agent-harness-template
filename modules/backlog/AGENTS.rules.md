@@ -1,1 +1,4 @@
-- **One task at a time.** At most one task `in_progress` in `backlog.json`.
+- **One task at a time.** At most one task `in_progress` in `backlog.json`. Resume it before starting another.
+- **New work goes in the backlog.** Anything else you find is added as a `todo` task, not done inside the current one, unless the user asks.
+- **A task ends done, paused or blocked, never silently.** Update `backlog.json`, append to `progress/history.md` and bring `progress/current.md` up to date. `done` needs the output of both checks.
+- **History is append-only.** Never edit or delete an earlier entry; add a new one.

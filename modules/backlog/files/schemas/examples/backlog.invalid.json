@@ -1,0 +1,19 @@
+{
+  "tasks": [
+    {
+      "id": "001",
+      "title": "Retry transient model errors in the agent loop",
+      "status": "in_progress",
+      "size": "medium",
+      "spec": "specs/001-retry-model-errors",
+      "createdAt": "2026-10-18"
+    },
+    {
+      "id": "002",
+      "title": "Add a tool to look up an order",
+      "status": "in_progress",
+      "size": "trivial",
+      "createdAt": "2026-10-19"
+    }
+  ]
+}

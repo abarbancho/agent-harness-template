@@ -64,7 +64,7 @@ if ($schemas.Count -gt 0) {
   $n = 0
   foreach ($s in $schemas) {
     $name = $s.Name -replace '\.schema\.json$', ''
-    if ((Get-Content -Raw -Encoding UTF8 $s.FullName) -match 'TODO') { Skip "schema ${name}: stub (contains TODO)"; continue }
+    if ((Get-Content -Raw -Encoding UTF8 $s.FullName) -cmatch 'TODO') { Skip "schema ${name}: stub (contains TODO)"; continue }
     $n++
     foreach ($k in 'valid', 'invalid') {
       if (-not (Test-Path "schemas/examples/$name.$k.json")) {

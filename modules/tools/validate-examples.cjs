@@ -42,6 +42,27 @@ for (const s of schemas.filter((x) => !x.stub)) ajv.addSchema(s.schema);
 let failures = 0;
 const fail = (msg) => { failures++; console.log('  FAIL ' + msg); };
 
+// Rules the backlog schema cannot express: unique ids, dependsOn naming existing ids (no
+// self reference, no cycle), and a spec folder that starts with the id of its task.
+function backlogProblems(data) {
+  const out = [];
+  const ids = new Set();
+  for (const t of data.tasks) { if (ids.has(t.id)) out.push('duplicate id ' + t.id); ids.add(t.id); }
+  const deps = new Map(data.tasks.map((t) => [t.id, t.dependsOn || []]));
+  for (const [id, list] of deps) for (const d of list) if (!ids.has(d)) out.push('task ' + id + ' depends on unknown id ' + d);
+  for (const t of data.tasks) if (t.spec && !t.spec.startsWith('specs/' + t.id + '-')) out.push('task ' + t.id + ' spec does not start with its id: ' + t.spec);
+  const state = new Map();
+  const visit = (id, trail) => {
+    if (state.get(id) === 2 || !deps.has(id)) return;
+    if (state.get(id) === 1) { out.push('dependency cycle: ' + [...trail, id].join(' -> ')); return; }
+    state.set(id, 1);
+    for (const d of deps.get(id)) visit(d, [...trail, id]);
+    state.set(id, 2);
+  };
+  for (const id of deps.keys()) visit(id, []);
+  return out;
+}
+
 for (const s of schemas) {
   console.log(`${s.name}${s.stub ? '  (stub, skipped)' : ''}`);
   if (s.stub) continue;
@@ -55,6 +76,7 @@ for (const s of schemas) {
     const items = kind === 'valid' && Array.isArray(data) ? data : [data];
     const rejected = items.findIndex((item) => !validate(item));
     const ok = rejected === -1;
+    if (kind === 'valid' && ok && s.name === 'backlog') for (const m of backlogProblems(items[0])) fail('valid example: ' + m);
     if (kind === 'valid' && ok) console.log(`  ok   valid example validates${items.length > 1 ? ` (${items.length} items)` : ''}`);
     else if (kind === 'valid') { validate(items[rejected]); fail(`valid example rejected (item ${rejected}): ` + ajv.errorsText(validate.errors)); }
     else if (!ok) console.log(`  ok   invalid example rejected (${validate.errors[0].instancePath || '/'} ${validate.errors[0].message})`);
@@ -67,6 +89,7 @@ for (const s of schemas) {
 const INSTANCES = [
   { file: 'config/guardrails.policy.json', schema: 'policy' },
   { file: 'evals/suite.json', schema: 'eval-suite' },
+  { file: 'backlog.json', schema: 'backlog' },
 ];
 for (const inst of INSTANCES) {
   const candidates = [path.join(root, inst.file)];
@@ -78,6 +101,7 @@ for (const inst of INSTANCES) {
     const target = schemas.find((s) => s.name === inst.schema && !s.stub);
     if (!target) { fail(`schema ${inst.schema} not found or is a stub`); continue; }
     const validate = ajv.getSchema(target.schema.$id);
+    if (inst.schema === 'backlog' && validate(read(file))) for (const m of backlogProblems(read(file))) fail('shipped instance: ' + m);
     if (validate(read(file))) console.log('  ok   shipped instance validates');
     else fail('shipped instance rejected: ' + ajv.errorsText(validate.errors));
   }

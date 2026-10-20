@@ -1,0 +1,43 @@
+{
+  "tasks": [
+    {
+      "id": "001",
+      "title": "Fix the typo in the README quick start",
+      "status": "done",
+      "size": "trivial",
+      "outcome": "Typo fixed; both checks pass.",
+      "createdAt": "2026-10-18",
+      "closedAt": "2026-10-18"
+    },
+    {
+      "id": "002",
+      "title": "Retry transient model errors in the agent loop",
+      "status": "in_progress",
+      "size": "medium",
+      "spec": "specs/002-retry-model-errors",
+      "createdAt": "2026-10-18"
+    },
+    {
+      "id": "003",
+      "title": "Add a tool to look up an order",
+      "status": "todo",
+      "dependsOn": ["002"],
+      "createdAt": "2026-10-19"
+    },
+    {
+      "id": "004",
+      "title": "Send a summary email at the end of each run",
+      "status": "blocked",
+      "reason": "Waiting for a decision on which mail service to use.",
+      "createdAt": "2026-10-19"
+    },
+    {
+      "id": "005",
+      "title": "Support a second model provider",
+      "status": "dropped",
+      "reason": "Out of scope for this release.",
+      "createdAt": "2026-10-19",
+      "closedAt": "2026-10-20"
+    }
+  ]
+}

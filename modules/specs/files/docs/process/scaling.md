@@ -44,8 +44,8 @@ example `Size: large (public interface changes: schemas/tool.schema.json)`.
 | Medium | Short spec: `specs/<id>-<slug>/spec.md`, from `specs/_templates/short-spec.md` | None, unless the user asked to review it |
 | Large | Full spec in `specs/<id>-<slug>/`: `requirements.md`, `design.md`, `tasks.md` | A person approves the requirements and the design **before** any implementation |
 
-`<id>` is the next free three-digit number (`001`, `002`, ...) and `<slug>` is a few lowercase
-words with dashes. See `specs/README.md` for the life of a spec.
+`<id>` is the next free three-digit number (`001`, `002`, ...), or the id of the task when the
+`backlog` module is used. `<slug>` is a few lowercase words with dashes. See `specs/README.md` for the life of a spec.
 
 ## 3. When the size changes
 
