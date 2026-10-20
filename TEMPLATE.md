@@ -84,7 +84,8 @@ repository map row pointing to a missing path, a schema without an example). Eve
 schema was validated against its examples with Ajv 2020, and against edge-case probes written
 for the maintenance session and not kept in the repo. Nothing in the contracts was run against
 a real model or provider. Not tested by hand: macOS (BSD
-`sed`/`awk`), Linux with `dash`, PowerShell 7. The CI workflow covers them once it has run.
+`sed`/`awk`), Linux with `dash`, PowerShell 7. The CI workflow covers them, and its first
+run (2026-10-20) was green on Linux, macOS and Windows.
 
 Known quirk: on Windows, Git Bash `sed` and `awk` drop carriage returns, so `init.sh`
 rewrites `AGENTS.md` and `README.md` with LF endings. `.gitattributes` (`text=auto`)

@@ -20,8 +20,8 @@ Harness design decisions not yet made.
    hand from the template. Decide whether to keep `modules/` and `init.*` instead.
 8. **Cross-platform verification.** `init` and `check` were tested by hand only on Windows.
    `.github/workflows/template-ci.yml` runs `modules/tools/smoke.sh` on Linux, macOS and
-   Windows (Windows PowerShell 5.1 and PowerShell 7). Until that workflow has run green on
-   all three, macOS, Linux and PowerShell 7 count as unverified.
+   Windows (Windows PowerShell 5.1 and PowerShell 7). First run, 2026-10-20: green on all
+   three. The runners are `-latest` images, so a later run can fail when GitHub updates them.
 9. **Tool annotations.** `annotations` is an open object because the MCP annotation field
     names could not be confirmed against the current spec revision. Name them once verified.
 10. **OpenTelemetry GenAI conventions are in Development status** and live in
